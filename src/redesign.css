@@ -1,0 +1,989 @@
+/* The NASA blue redesign: top bar, planet extras, fact cards and learning
+   blocks. Loaded after styles.css, which holds the base layout. */
+
+/* =====================================================================
+   Top bar: dark glass, logo, Visual Overlay, Learn, then view controls
+   ===================================================================== */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px;
+  background: rgba(5, 8, 17, 0.62);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-bottom: 1px solid var(--line);
+}
+
+.logo {
+  font-size: 21px;
+  letter-spacing: 0.06em;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.topbar-left,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-right {
+  margin-left: auto;
+}
+
+.nav-pill,
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(16, 26, 51, 0.55);
+  color: #fff;
+  font-size: 14px;
+  transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.icon-btn {
+  width: 42px;
+  padding: 0;
+}
+
+.nav-pill:hover,
+.icon-btn:hover,
+.nav-pill[aria-expanded='true'],
+.icon-btn[aria-expanded='true'] {
+  border-color: var(--line-strong);
+  background: rgba(11, 61, 145, 0.45);
+  box-shadow: 0 0 16px rgba(30, 144, 255, 0.18);
+}
+
+.nav-pill strong {
+  color: var(--sky);
+  font-weight: 600;
+}
+
+.nav-pill > svg:first-child,
+.nav-pill .narrow-icon {
+  color: var(--sky);
+}
+
+.narrow-icon {
+  display: none;
+}
+
+.seg {
+  border-color: var(--line);
+  border-radius: 999px;
+  background: rgba(16, 26, 51, 0.55);
+}
+
+.seg button {
+  min-height: 40px;
+}
+
+.dd {
+  position: relative;
+}
+
+.dd-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  z-index: 40;
+  min-width: 270px;
+  padding: 14px;
+  border: 1px solid rgba(30, 144, 255, 0.35);
+  border-radius: 14px;
+  background: rgba(7, 12, 26, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 30px rgba(11, 61, 145, 0.25);
+  animation: dd-in 0.18s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.dd-panel--start {
+  left: 0;
+}
+
+.dd-panel--end {
+  right: 0;
+  min-width: 200px;
+  padding: 6px;
+}
+
+.dd-panel--learn {
+  width: 360px;
+}
+
+@keyframes dd-in {
+  from {
+    opacity: 0;
+    translate: 0 -6px;
+  }
+}
+
+.dd-title {
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.switches {
+  display: grid;
+  gap: 4px;
+}
+
+.switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.switch:hover {
+  background: rgba(11, 61, 145, 0.25);
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switch-track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: #26314a;
+  transition: background-color 0.15s;
+}
+
+.switch-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: translate 0.18s;
+}
+
+.switch input:checked + .switch-track {
+  background: var(--electric);
+}
+
+.switch input:checked + .switch-track::after {
+  translate: 18px 0;
+}
+
+.switch input:focus-visible + .switch-track {
+  outline: 2px solid var(--sky);
+  outline-offset: 2px;
+}
+
+.switch-text {
+  display: grid;
+  font-size: 14px;
+}
+
+.switch-text small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ranks {
+  display: grid;
+  gap: 8px;
+}
+
+.rank {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44px 1fr 22px;
+  align-items: start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(16, 26, 51, 0.5);
+  text-align: left;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.rank:hover {
+  border-color: var(--line-strong);
+  background: rgba(11, 61, 145, 0.3);
+}
+
+.rank.is-on {
+  background: var(--cobalt);
+  border-color: rgba(96, 165, 250, 0.7);
+  box-shadow: 0 0 22px rgba(30, 144, 255, 0.3);
+}
+
+.rank-badge {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(30, 144, 255, 0.15);
+  color: var(--sky);
+  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.4);
+}
+
+.rank.is-on .rank-badge {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.rank-text {
+  display: grid;
+  gap: 2px;
+}
+
+.rank-level {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sky);
+}
+
+.rank.is-on .rank-level {
+  color: #cfe4ff;
+}
+
+.rank-name {
+  font-family: var(--display);
+  font-stretch: 115%;
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.rank-desc {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.rank.is-on .rank-desc {
+  color: #dbe7ff;
+}
+
+.rank-check {
+  color: #fff;
+  padding-top: 2px;
+}
+
+.menu-list button,
+.menu-list a {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: #fff;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.menu-list button:hover,
+.menu-list a:hover {
+  background: rgba(11, 61, 145, 0.4);
+  color: #fff;
+}
+
+.menu-list svg {
+  color: var(--sky);
+}
+
+/* =====================================================================
+   Planets: wrapper, orbit paths, orbiting rocks and robot, labels, glow
+   ===================================================================== */
+
+.planet-wrap {
+  position: relative;
+  flex: none;
+  width: var(--planet);
+  aspect-ratio: 1;
+  container-type: inline-size;
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.45s;
+}
+
+.planet-wrap .planet {
+  width: 100%;
+}
+
+.slide:not(.is-active) .planet-wrap .planet {
+  transform: none;
+  opacity: 1;
+}
+
+.slide:not(.is-active) .planet-wrap {
+  transform: scale(0.62);
+  opacity: 0.55;
+}
+
+.planet:hover {
+  transform: scale(1.03) rotate(-1.5deg);
+}
+
+.planet.is-3d:hover {
+  transform: none;
+}
+
+.planet.is-3d canvas {
+  pointer-events: auto;
+}
+
+.has-atmo .globe {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--atmo) 35%, transparent),
+    0 0 26px -2px color-mix(in srgb, var(--atmo) 45%, transparent),
+    0 0 60px -10px color-mix(in srgb, var(--atmo) 40%, transparent);
+}
+
+.has-atmo .globe::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  box-shadow: inset 6px 4px 14px -6px color-mix(in srgb, var(--atmo) 70%, transparent);
+}
+
+/* Day and night: a crisper terminator than a plain vignette. */
+.globe::after {
+  z-index: 2;
+  background: radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.12) 0,
+      rgba(0, 0, 0, 0) 34%,
+      rgba(0, 0, 0, 0.35) 56%,
+      rgba(0, 0, 0, 0.88) 76%,
+      #000 100%
+    ),
+    linear-gradient(115deg, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, 0.55) 72%);
+}
+
+.planet.is-picked::after {
+  content: '';
+  position: absolute;
+  inset: -9%;
+  z-index: 5;
+  border-radius: 50%;
+  border: 2px solid var(--sky);
+  box-shadow: 0 0 24px rgba(30, 144, 255, 0.55), inset 0 0 18px rgba(30, 144, 255, 0.35);
+  animation: pick 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pick {
+  50% {
+    scale: 1.05;
+    opacity: 0.6;
+  }
+}
+
+.orbit-path {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--orbit-w, 177%);
+  translate: -50% -50%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.orbit-path ellipse {
+  fill: none;
+  stroke: rgba(96, 165, 250, 0.45);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.orbit-path--back {
+  z-index: 0;
+  clip-path: inset(0 0 50% 0);
+}
+
+.orbit-path--front {
+  z-index: 3;
+  clip-path: inset(50% 0 0 0);
+}
+
+.orbiter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+}
+
+.orbiter svg {
+  rotate: var(--spin, 0deg);
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.6));
+  transition: scale 0.15s, filter 0.15s;
+}
+
+.orbiter--craft svg {
+  rotate: none;
+}
+
+.orbiter:hover svg,
+.orbiter:focus-visible svg {
+  scale: 1.5;
+  filter: drop-shadow(0 0 6px rgba(30, 144, 255, 0.9));
+}
+
+.planet-label {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  z-index: 4;
+  translate: -50% -100%;
+  padding: 3px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(5, 8, 17, 0.6);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #dbe7ff;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.slide:not(.is-active) .planet-label {
+  opacity: 0;
+}
+
+.planet-wrap--saturn .planet-label {
+  top: -2%;
+}
+
+.nav-btn {
+  border-radius: 50%;
+  border-color: var(--line);
+  background: rgba(10, 17, 34, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.nav-btn:hover:not(:disabled) {
+  border-color: var(--sky);
+  background: rgba(11, 61, 145, 0.5);
+}
+
+.stage::before {
+  border-top-color: rgba(96, 165, 250, 0.16);
+}
+
+.rail-stop.is-active .rail-dot {
+  box-shadow: 0 0 10px rgba(30, 144, 255, 0.8);
+}
+
+.deep-disc {
+  fill: #070d1d;
+}
+
+.deep-sun {
+  fill: #ffffff;
+}
+
+.robots-inline {
+  position: relative;
+}
+
+.hint {
+  color: var(--muted);
+}
+
+/* =====================================================================
+   Fact card
+   ===================================================================== */
+
+.fact {
+  position: fixed;
+  z-index: 25;
+  right: 24px;
+  bottom: 24px;
+  width: min(380px, calc(100vw - 32px));
+  padding: 16px 18px 18px;
+  border: 1px solid rgba(30, 144, 255, 0.45);
+  border-radius: 16px;
+  background: rgba(7, 12, 26, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 34px rgba(11, 61, 145, 0.35);
+  animation: fact-in 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.fact:focus {
+  outline: none;
+}
+
+@keyframes fact-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+    scale: 0.97;
+  }
+}
+
+.fact-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fact-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sky);
+}
+
+.fact-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 26px;
+}
+
+.fact-text {
+  margin-top: 10px;
+  font-size: 15px;
+}
+
+.fact-actions {
+  margin-top: 14px;
+}
+
+.fact-actions .btn {
+  width: 100%;
+}
+
+.say-btn {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: rgba(11, 61, 145, 0.35);
+  color: var(--sky);
+  transition: background-color 0.15s;
+}
+
+.say-btn:hover {
+  background: var(--cobalt);
+  color: #fff;
+}
+
+.word {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(16, 26, 51, 0.8);
+  border: 1px solid var(--line);
+}
+
+.word-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.word-term {
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.word-say {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.word-head .say-btn {
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+}
+
+.word-def {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #dbe7ff;
+}
+
+/* =====================================================================
+   Learning blocks inside a robot page
+   ===================================================================== */
+
+.learn-box {
+  padding: 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(11, 61, 145, 0.28), rgba(11, 61, 145, 0.08));
+}
+
+.learn-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.detail .learn-box-head h3 {
+  margin: 0;
+}
+
+.detail .learn-sub {
+  margin-top: 16px;
+}
+
+.learn-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(30, 144, 255, 0.18);
+  color: var(--sky);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.story {
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.words .word:first-child {
+  margin-top: 0;
+}
+
+.quiz-q em {
+  color: #dbe7ff;
+}
+
+.quiz-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.quiz-option {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(16, 26, 51, 0.8);
+  text-transform: capitalize;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.quiz-option:hover:not(:disabled) {
+  background: rgba(11, 61, 145, 0.5);
+}
+
+.quiz-option:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.quiz-option.is-right {
+  opacity: 1;
+  background: var(--cobalt);
+  border-color: var(--sky);
+}
+
+.quiz-option.is-wrong {
+  opacity: 1;
+  border-color: #9aa3b5;
+  text-decoration: line-through;
+}
+
+.quiz-result {
+  margin-top: 12px;
+}
+
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sky);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.telemetry {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.telemetry > div {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(5, 8, 17, 0.55);
+  border: 1px solid var(--line);
+}
+
+.telemetry dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.telemetry dd {
+  font-family: var(--display);
+  font-stretch: 112%;
+  font-weight: 600;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.compare th,
+.compare td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.compare thead th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.compare tr.is-this th,
+.compare tr.is-this td {
+  background: rgba(30, 144, 255, 0.12);
+}
+
+.facts dd {
+  color: #fff;
+}
+
+/* Guide */
+
+.guide {
+  padding: 18px 24px calc(40px + env(safe-area-inset-bottom));
+}
+
+.guide section {
+  margin-top: 22px;
+}
+
+.guide h3 {
+  margin-bottom: 8px;
+}
+
+.guide .credits p {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.guide .credits p + p {
+  margin-top: 8px;
+}
+
+/* =====================================================================
+   Phones
+   ===================================================================== */
+
+@media (max-width: 767px) {
+  .topbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    gap: 6px;
+    padding: 0 10px 0 14px;
+  }
+
+  .logo {
+    font-size: 15px;
+    letter-spacing: 0.03em;
+  }
+
+  .topbar-left,
+  .topbar-right {
+    gap: 5px;
+  }
+
+  .pill-text,
+  .wide-icon {
+    display: none;
+  }
+
+  .narrow-icon {
+    display: inline;
+  }
+
+  .nav-pill {
+    min-height: 38px;
+    padding: 0 8px;
+    gap: 2px;
+  }
+
+  .nav-pill:not([aria-controls='learn-menu']) {
+    width: 38px;
+    padding: 0;
+  }
+
+  .icon-btn {
+    width: 38px;
+    min-height: 38px;
+  }
+
+  .seg button {
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 13px;
+  }
+
+  .dd {
+    position: static;
+  }
+
+  .dd-panel,
+  .dd-panel--learn {
+    position: fixed;
+    top: calc(var(--header-h) + 8px);
+    left: 10px;
+    right: 10px;
+    width: auto;
+  }
+
+  .dd-panel--end {
+    left: auto;
+    width: 220px;
+  }
+
+  .slide:not(.is-active) .planet-wrap {
+    transform: scale(0.86);
+    opacity: 0.75;
+  }
+
+  .planet-wrap--saturn {
+    width: min(40vw, 30dvh);
+    margin-block: calc(var(--planet) / 2 - min(20vw, 15dvh));
+  }
+
+  .planet-wrap--saturn .planet--saturn {
+    width: 100%;
+    margin-block: 0;
+  }
+
+  .fact {
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    width: auto;
+  }
+
+  .detail-head .back-btn {
+    min-height: 48px;
+    padding: 10px 18px 10px 12px;
+    font-size: 16px;
+  }
+
+  .guide {
+    padding: 14px 16px calc(48px + env(safe-area-inset-bottom));
+  }
+
+  .telemetry {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  .topbar {
+    gap: 4px;
+    padding: 0 8px 0 12px;
+  }
+
+  .logo {
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+
+  .topbar-left,
+  .topbar-right {
+    gap: 4px;
+  }
+
+  .nav-pill,
+  .icon-btn {
+    min-height: 36px;
+  }
+
+  .nav-pill:not([aria-controls='learn-menu']),
+  .icon-btn {
+    width: 36px;
+  }
+
+  .nav-pill[aria-controls='learn-menu'] {
+    padding: 0 5px 0 7px;
+  }
+
+  .seg button {
+    min-width: 32px;
+    min-height: 34px;
+  }
+
+  .icon-btn--dots {
+    width: 30px;
+    border-color: transparent;
+    background: none;
+  }
+}

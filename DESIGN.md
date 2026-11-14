@@ -9,10 +9,9 @@ The project name is HEXATOUR, from the team's presentation. There is no logo, on
 
 - **Dark theme, no light toggle.** The subject is planets photographed against space. A white page would
   fight every image on it.
-- **One accent: foil gold (`#e8b04a`).** It is the color of the gold insulation on spacecraft. It marks
-  the one main action per screen, the current stop on the rail, links, and the "Left on site" label.
-- **Green and grey are status colors only.** Active is green, Ended is grey. Each status also has its own
-  shape and word, so it never depends on color.
+- **NASA blue, white and black.** Deep Space Black (#050811) behind everything, NASA Cobalt (#0B3D91) for the main action and the chosen rank, Electric Blue (#1E90FF) for glows and switches, Soft Sky Blue (#60A5FA) for links and highlighted text, white for type. No yellow or orange in the interface.
+- **Dark glass top bar.** Logo, Visual Overlay and Learn on the left; 2D/3D, pause and the ⋮ menu (User Guide, Report a Bug) on the right. Credits moved from the footer into the User Guide.
+- **Status in blue, white and grey.** Active is blue, Ended is grey, Left on site is white. Each status also has its own shape and word, so it never depends on color.
 - **Archivo, set wide, for headings.** Wide grotesque lettering echoes the lettering painted on NASA
   hardware. IBM Plex Sans for body text because it reads like a technical document, which this is.
 - **The line under the planets.** Every world sits on one thin line: the plane the planets orbit in. It is
@@ -21,6 +20,7 @@ The project name is HEXATOUR, from the team's presentation. There is no logo, on
   keep the status labels in one column.
 - **Globe shading gradient.** The only gradient on the page. It shades the flat map so the disc reads as
   a sphere lit from the upper left. The 3D view uses the same light direction.
+- **Depth.** A layered starfield drifts toward the viewer and shifts with the pointer and scroll. Rocks and a robot orbit every world and can be tapped for a fact card with a spoken word. The 3D view adds a day-night terminator, an atmosphere rim and Saturn's rings with the Cassini Division and the planet's shadow.
 - **Motion.** Planets turn slowly, slides ease into the center, panels slide in from the edge they are
   attached to. All of it stops with "Pause motion", and starts paused for visitors who ask their system
   for reduced motion.
@@ -31,5 +31,5 @@ The project name is HEXATOUR, from the team's presentation. There is no logo, on
 ## Honest gaps
 
 - Uranus has no NASA surface map in the sources used, so its surface is drawn and labeled as drawn.
-- Saturn's rings are drawn.
+- Saturn's rings, the asteroids and the robot models are drawn by code.
 - Spacecraft distances are a straight-line estimate from NASA/JPL Horizons values for 14 November 2026.

@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
-import { StatusTags } from './Status.jsx';
+import { useEffect, useMemo, useState } from 'react';
+import { StatusTags, StatusTag } from './Status.jsx';
 import { distanceNow } from '../data/robots.js';
 import { BODY_BY_ID } from '../data/bodies.js';
 import { useNow } from '../lib/hooks.js';
+import { GLOSSARY, ROBOT_TEXT, canSpeak, lookup, speak, wordsIn } from '../data/learn.js';
+import { WordLine } from './FactCard.jsx';
+import { ArrowLeft, CloseIcon, SpeakerIcon } from './Icons.jsx';
 
 function Photo({ photo }) {
   const [state, setState] = useState('loading'); // loading | ready | error
@@ -35,6 +38,23 @@ function Photo({ photo }) {
 }
 
 const whole = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
+const MONTHS = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+
+function parseDay(text) {
+  const m = /(\d{1,2}) (\w{3}) (\d{4})/.exec(text || '');
+  if (!m || !(m[2] in MONTHS)) return null;
+  return Date.UTC(+m[3], MONTHS[m[2]], +m[1]);
+}
+
+function lastYear(journey) {
+  for (let i = journey.length - 1; i >= 0; i -= 1) {
+    const d = parseDay(journey[i][0]);
+    if (d) return d;
+    const y = /(\d{4})(?!.*\d{4})/.exec(journey[i][0]);
+    if (y) return Date.UTC(+y[1], 6, 1);
+  }
+  return null;
+}
 
 function Distance({ horizons, paused }) {
   const now = useNow(!paused, 1000);
@@ -67,21 +87,164 @@ function Distance({ horizons, paused }) {
   );
 }
 
-export default function RobotDetail({ robot, bodyId, titleId, closeLabel, onClose, paused }) {
+// Cadet: a short story read aloud, and the key words with their sounds.
+function StoryTime({ robot }) {
+  const story = ROBOT_TEXT[robot.id]?.cadet;
+  const words = wordsIn(`${robot.type} ${story} ${robot.how.join(' ')}`, 4);
+  return (
+    <section className="learn-box">
+      <div className="learn-box-head">
+        <h3>Story time</h3>
+        {canSpeak && (
+          <button type="button" className="btn btn--soft" onClick={() => speak(`${robot.name}. ${story}`, 0.88)}>
+            <SpeakerIcon /> Read aloud
+          </button>
+        )}
+      </div>
+      <p className="story">{story}</p>
+      <h3 className="learn-sub">Words to know</h3>
+      <div className="words">
+        {words.map((w) => (
+          <WordLine key={w} word={w} level="cadet" />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// Astronaut: one word challenge built from the words on this page.
+function WordChallenge({ robot }) {
+  const quiz = useMemo(() => {
+    const words = wordsIn(`${robot.type} ${robot.how.join(' ')} ${robot.science.join(' ')}`, 6);
+    const word = words[robot.id.length % words.length] || 'spacecraft';
+    const others = Object.keys(GLOSSARY).filter((w) => w !== word && !words.includes(w));
+    const pickA = others[(robot.id.charCodeAt(0) * 7) % others.length];
+    const pickB = others[(robot.id.charCodeAt(1) * 13 + 5) % others.length];
+    const options = [word, pickA, pickB === pickA ? others[(others.indexOf(pickA) + 3) % others.length] : pickB];
+    const rot = robot.id.length % 3;
+    return { word, options: [...options.slice(rot), ...options.slice(0, rot)] };
+  }, [robot]);
+  const [answer, setAnswer] = useState(null);
+  useEffect(() => setAnswer(null), [robot.id]);
+  const g = lookup(quiz.word);
+
+  return (
+    <section className="learn-box">
+      <div className="learn-box-head">
+        <h3>Word challenge</h3>
+        <span className="learn-chip">Science log</span>
+      </div>
+      <p className="quiz-q">
+        Which word means: <em>“{g.def}”</em>
+      </p>
+      <div className="quiz-options" role="group" aria-label="Answers">
+        {quiz.options.map((o) => {
+          const state = answer === null ? '' : o === quiz.word ? 'is-right' : o === answer ? 'is-wrong' : '';
+          return (
+            <button key={o} type="button" className={`quiz-option ${state}`} disabled={answer !== null} onClick={() => setAnswer(o)}>
+              {o}
+            </button>
+          );
+        })}
+      </div>
+      {answer !== null && (
+        <p className="quiz-result" role="status">
+          {answer === quiz.word ? 'Correct! Mission log updated.' : `Not quite. The answer is “${quiz.word}”.`}{' '}
+          {canSpeak && (
+            <button type="button" className="link-btn" onClick={() => speak(quiz.word)}>
+              Hear it
+            </button>
+          )}
+        </p>
+      )}
+    </section>
+  );
+}
+
+// Commander: telemetry numbers and how this robot compares with the others.
+function Telemetry({ robot, peers, paused }) {
+  const now = useNow(!paused, 1000);
+  const launch = parseDay(robot.launch);
+  const end = robot.status.state === 'active' ? now : lastYear(robot.journey);
+  const years = launch && end ? (end - launch) / (365.25 * 864e5) : null;
+  const days = launch ? Math.floor((now - launch) / 864e5) : null;
+  return (
+    <section className="learn-box">
+      <div className="learn-box-head">
+        <h3>Telemetry report</h3>
+        <span className="learn-chip">Commander</span>
+      </div>
+      <p className="story">{ROBOT_TEXT[robot.id]?.commander}</p>
+      <dl className="telemetry">
+        <div>
+          <dt>Mission class</dt>
+          <dd>{robot.type}</dd>
+        </div>
+        <div>
+          <dt>Days since launch</dt>
+          <dd>{days ? whole.format(days) : '—'}</dd>
+        </div>
+        <div>
+          <dt>{robot.status.state === 'active' ? 'Operating for' : 'Operated for'}</dt>
+          <dd>{years ? `${years.toFixed(1)} years` : '—'}</dd>
+        </div>
+        <div>
+          <dt>Instruments and systems logged</dt>
+          <dd>{robot.how.length}</dd>
+        </div>
+      </dl>
+      {peers.length > 1 && (
+        <>
+          <h3 className="learn-sub">Cross-mission analysis</h3>
+          <div className="table-wrap">
+            <table className="compare">
+              <thead>
+                <tr>
+                  <th scope="col">Robot</th>
+                  <th scope="col">Class</th>
+                  <th scope="col">Launch</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {peers.map((p) => (
+                  <tr key={p.id} className={p.id === robot.id ? 'is-this' : ''}>
+                    <th scope="row">{p.short || p.name}</th>
+                    <td>{p.type}</td>
+                    <td>{p.launch.match(/\d{4}/)[0]}</td>
+                    <td>
+                      <StatusTag kind={p.status.state} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+export default function RobotDetail({ robot, bodyId, titleId, isDesktop, onClose, paused, level, peers }) {
   const visit = robot.visits && robot.visits[bodyId];
   const body = BODY_BY_ID[bodyId];
+  const cadet = level === 'cadet';
+  const how = cadet ? robot.how.slice(0, 2) : robot.how;
+  const science = cadet ? robot.science.slice(0, 2) : robot.science;
 
   return (
     <article className="detail">
       <header className="detail-head">
-        <div>
-          <p className="detail-type">{robot.type}</p>
-          <h2 id={titleId}>{robot.name}</h2>
-        </div>
-        <button type="button" className="btn btn--quiet" onClick={onClose}>
-          {closeLabel}
+        <button type="button" className="back-btn" onClick={onClose}>
+          {isDesktop ? <CloseIcon /> : <ArrowLeft />}
+          <span>{isDesktop ? 'Close' : 'Back to list'}</span>
         </button>
+        <p className="detail-type">{robot.type}</p>
+        <h2 id={titleId}>{robot.name}</h2>
       </header>
+
+      {cadet && <StoryTime robot={robot} />}
 
       <Photo photo={robot.photo} />
 
@@ -106,6 +269,10 @@ export default function RobotDetail({ robot, bodyId, titleId, closeLabel, onClos
           <dd>{robot.mission}</dd>
         </div>
         <div>
+          <dt>Mission type</dt>
+          <dd>{robot.type}</dd>
+        </div>
+        <div>
           <dt>Launched</dt>
           <dd>{robot.launch}</dd>
         </div>
@@ -115,12 +282,14 @@ export default function RobotDetail({ robot, bodyId, titleId, closeLabel, onClos
         </div>
       </dl>
 
+      {level === 'commander' && <Telemetry robot={robot} peers={peers} paused={paused} />}
+
       {robot.horizons && <Distance horizons={robot.horizons} paused={paused} />}
 
       <section>
-        <h3>How the machine works</h3>
+        <h3>{cadet ? 'How it works' : 'How the machine works'}</h3>
         <ul className="plain">
-          {robot.how.map((t) => (
+          {how.map((t) => (
             <li key={t}>{t}</li>
           ))}
         </ul>
@@ -141,11 +310,13 @@ export default function RobotDetail({ robot, bodyId, titleId, closeLabel, onClos
       <section>
         <h3>What it taught us</h3>
         <ul className="plain">
-          {robot.science.map((t) => (
+          {science.map((t) => (
             <li key={t}>{t}</li>
           ))}
         </ul>
       </section>
+
+      {level === 'astronaut' && <WordChallenge robot={robot} />}
 
       <section>
         <h3>People behind it</h3>
@@ -184,6 +355,7 @@ export default function RobotDetail({ robot, bodyId, titleId, closeLabel, onClos
           )}
         </ul>
       </section>
+
     </article>
   );
 }

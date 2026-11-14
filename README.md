@@ -41,7 +41,8 @@ React, Vite and three.js (all open source). Fonts: Archivo and IBM Plex Sans (SI
 
 The code and the written summaries were produced with an AI coding assistant (Claude) and checked against
 the NASA pages listed above. No images, audio or video on the site are AI-generated. The surface of
-Uranus and the rings of Saturn are drawn by code and are labeled as drawn.
+Uranus, the rings of Saturn, the asteroids and the robot models in space are drawn by code. Spoken words use
+the browser's built-in speech voice.
 
 ## Things to check before submitting
 

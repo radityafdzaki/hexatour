@@ -5,6 +5,7 @@
 export const BODIES = [
   {
     id: 'mercury',
+    atmo: '#8fa6cc',
     name: 'Mercury',
     kind: 'Planet',
     order: 'First planet from the Sun',
@@ -16,6 +17,7 @@ export const BODIES = [
   },
   {
     id: 'venus',
+    atmo: '#f3e3b8',
     name: 'Venus',
     kind: 'Planet',
     order: 'Second planet from the Sun',
@@ -27,6 +29,7 @@ export const BODIES = [
   },
   {
     id: 'moon',
+    atmo: '#8fa6cc',
     name: 'The Moon',
     inText: 'the Moon',
     kind: 'Moon of Earth',
@@ -39,6 +42,7 @@ export const BODIES = [
   },
   {
     id: 'mars',
+    atmo: '#f0a07a',
     name: 'Mars',
     kind: 'Planet',
     order: 'Fourth planet from the Sun',
@@ -50,6 +54,7 @@ export const BODIES = [
   },
   {
     id: 'jupiter',
+    atmo: '#e8dcc0',
     name: 'Jupiter',
     kind: 'Planet',
     order: 'Fifth planet from the Sun',
@@ -61,6 +66,7 @@ export const BODIES = [
   },
   {
     id: 'saturn',
+    atmo: '#f0e0b4',
     name: 'Saturn',
     kind: 'Planet',
     order: 'Sixth planet from the Sun',
@@ -73,6 +79,7 @@ export const BODIES = [
   },
   {
     id: 'uranus',
+    atmo: '#a6f0f5',
     name: 'Uranus',
     kind: 'Planet',
     order: 'Seventh planet from the Sun',
@@ -85,6 +92,7 @@ export const BODIES = [
   },
   {
     id: 'neptune',
+    atmo: '#6aa8ff',
     name: 'Neptune',
     kind: 'Planet',
     order: 'Eighth planet from the Sun',
@@ -96,6 +104,7 @@ export const BODIES = [
   },
   {
     id: 'deepspace',
+    atmo: '#60a5fa',
     name: 'Deep Space',
     inText: 'deep space',
     kind: 'Beyond the planets',

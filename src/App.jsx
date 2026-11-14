@@ -6,6 +6,21 @@ import Planet from './components/Planet.jsx';
 import RobotList from './components/RobotList.jsx';
 import RobotDetail from './components/RobotDetail.jsx';
 import Sheet from './components/Sheet.jsx';
+import TopBar from './components/TopBar.jsx';
+import Starfield from './components/Starfield.jsx';
+import FactCard from './components/FactCard.jsx';
+import Guide from './components/Guide.jsx';
+import { BODY_TEXT, LEVEL_BY_ID } from './data/learn.js';
+
+const OVERLAY_DEFAULT = { orbits: true, belt: true, labels: true, atmosphere: true };
+
+function readOverlay() {
+  try {
+    return { ...OVERLAY_DEFAULT, ...JSON.parse(readStored('overlay', '{}')) };
+  } catch {
+    return OVERLAY_DEFAULT;
+  }
+}
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -34,6 +49,22 @@ export default function App() {
   const [selectedBody, setSelectedBody] = useState(null);
   const [robotId, setRobotId] = useState(null);
   const [notice, setNotice] = useState('');
+  const [level, setLevel] = useState(() => {
+    const v = readStored('learn-level', 'cadet');
+    return LEVEL_BY_ID[v] ? v : 'cadet';
+  });
+  const [overlay, setOverlay] = useState(readOverlay);
+  const [fact, setFact] = useState(null); // { kind, index }
+  const [guideOpen, setGuideOpen] = useState(false);
+
+  const chooseLevel = (next) => {
+    setLevel(next);
+    writeStored('learn-level', next);
+  };
+  const chooseOverlay = (next) => {
+    setOverlay(next);
+    writeStored('overlay', JSON.stringify(next));
+  };
 
   const trackRef = useRef(null);
   const slideRefs = useRef([]);
@@ -137,6 +168,10 @@ export default function App() {
     goTo(activeRef.current, true);
   }, [isDesktop, goTo]);
 
+  useEffect(() => {
+    setFact((f) => (f && f.index !== active ? null : f));
+  }, [active]);
+
   // Sliding to another world on desktop closes the robot list of the previous one.
   useEffect(() => {
     if (isDesktop && selectedBody && BODIES[active].id !== selectedBody && !robotId) setSelectedBody(null);
@@ -205,30 +240,30 @@ export default function App() {
     }
   };
 
+  const pickInSpace = (index, kind) => {
+    if (index !== activeRef.current) goTo(index);
+    setFact({ kind, index });
+  };
+  const factBody = fact ? BODIES[fact.index] : null;
+  const factRobots = useMemo(() => (factBody ? robotsFor(factBody.id) : []), [factBody]);
+  const peers = useMemo(() => (selectedBody ? robotsFor(selectedBody) : []), [selectedBody]);
+
   const listSheetOpen = !isDesktop && Boolean(selected) && !robot;
 
   return (
     <div className={paused ? 'app is-paused' : 'app'}>
-      <header className="site-header">
-        <div className="brand">
-          <h1>HEXATOUR</h1>
-          <p>The interactive planetary exploration encyclopedia</p>
-        </div>
-        <div className="controls">
-          <div className="seg" role="group" aria-label="Planet view">
-            <button type="button" aria-pressed={mode === '2d'} onClick={() => chooseMode('2d')}>
-              2D
-            </button>
-            <button type="button" aria-pressed={mode === '3d'} onClick={() => chooseMode('3d')}>
-              3D
-            </button>
-          </div>
-          <button type="button" className="btn btn--quiet" aria-pressed={paused} onClick={() => setPaused((p) => !p)}>
-            {paused ? 'Play' : 'Pause'}
-            <span className="wide-only"> motion</span>
-          </button>
-        </div>
-      </header>
+      <Starfield paused={paused} belt={overlay.belt} dense={['mars', 'jupiter'].includes(BODIES[active].id)} />
+      <TopBar
+        mode={mode}
+        onMode={chooseMode}
+        paused={paused}
+        onPause={() => setPaused((p) => !p)}
+        level={level}
+        onLevel={chooseLevel}
+        overlay={overlay}
+        onOverlay={chooseOverlay}
+        onGuide={() => setGuideOpen(true)}
+      />
 
       {notice && (
         <p className="notice" role="status">
@@ -284,7 +319,9 @@ export default function App() {
                     mode={mode}
                     paused={paused}
                     now={minuteNow}
-                    onOpen={() => openBody(i)}
+                    overlay={overlay}
+                    picked={fact && fact.index === i ? fact.kind : null}
+                    onPick={(kind) => pickInSpace(i, kind)}
                     on3dError={on3dError}
                   />
                   <div className="slide-copy">
@@ -293,7 +330,7 @@ export default function App() {
                     </p>
                     <h2>{body.name}</h2>
                     <p className="slide-order">{body.order}</p>
-                    <p className="slide-blurb">{body.blurb}</p>
+                    <p className="slide-blurb">{level === 'astronaut' ? body.blurb : BODY_TEXT[body.id][level]}</p>
                     {body.deep && (
                       <p className="slide-key">
                         Inner ring: the orbit of Neptune. Dashed ring: the edge of the Sun's bubble, about 120 au out.
@@ -346,26 +383,34 @@ export default function App() {
         )}
       </main>
 
-      <footer className="site-footer">
-        <p>
-          Mission facts and photos come from <a href="https://science.nasa.gov/" target="_blank" rel="noreferrer">NASA Science</a> and
-          the <a href="https://images.nasa.gov/" target="_blank" rel="noreferrer">NASA Image and Video Library</a>. Planet maps come
-          from <a href="https://github.com/nasa/NASA-3D-Resources" target="_blank" rel="noreferrer">NASA 3D Resources</a> and{' '}
-          <a href="https://trek.nasa.gov/" target="_blank" rel="noreferrer">NASA Solar System Treks</a>. Spacecraft distances come
-          from <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noreferrer">NASA/JPL Horizons</a>.
-        </p>
-        <p>Made for the 2026 NASA Space Apps Challenge. This site is not endorsed by NASA.</p>
-      </footer>
+      {fact && factBody && (
+        <FactCard
+          fact={{ kind: fact.kind, body: factBody }}
+          level={level}
+          robots={factRobots}
+          onClose={() => setFact(null)}
+          onSeeRobots={() => {
+            setFact(null);
+            openBody(fact.index);
+          }}
+          onOpenRobot={(id) => {
+            setFact(null);
+            setSelectedBody(factBody.id);
+            setRobotId(id);
+          }}
+        />
+      )}
 
       <Sheet open={listSheetOpen} onClose={() => setSelectedBody(null)} variant="list" labelledBy="robots-sheet-heading">
         {selected && (
           <>
-            <div className="sheet-bar">
-              <button type="button" className="btn btn--quiet" onClick={() => setSelectedBody(null)}>
-                Close
-              </button>
-            </div>
-            <RobotList body={selected} robots={selectedRobots} headingId="robots-sheet-heading" onPick={setRobotId} />
+            <RobotList
+              body={selected}
+              robots={selectedRobots}
+              headingId="robots-sheet-heading"
+              onPick={setRobotId}
+              onClose={() => setSelectedBody(null)}
+            />
           </>
         )}
       </Sheet>
@@ -376,11 +421,17 @@ export default function App() {
             robot={robot}
             bodyId={selectedBody}
             titleId="robot-title"
-            closeLabel={isDesktop ? 'Close' : 'Back to list'}
+            isDesktop={isDesktop}
+            level={level}
+            peers={peers}
             onClose={() => setRobotId(null)}
             paused={paused}
           />
         )}
+      </Sheet>
+
+      <Sheet open={guideOpen} onClose={() => setGuideOpen(false)} variant="detail" labelledBy="guide-title">
+        <Guide onClose={() => setGuideOpen(false)} />
       </Sheet>
     </div>
   );

@@ -44,12 +44,12 @@ export function ringCanvas() {
   const rnd = seeded(21);
   for (let x = 0; x < 512; x += 1) {
     const t = x / 511;
-    let alpha = 0.55 + rnd() * 0.3;
+    let alpha = 0.55 + Math.sin(t * 60) * 0.08 + rnd() * 0.12;
     if (t < 0.18) alpha *= 0.35; // faint inner C ring
     if (t > 0.62 && t < 0.68) alpha = 0.04; // Cassini Division
     if (t > 0.97) alpha *= 0.3;
     const light = 150 + Math.round(rnd() * 60);
-    ctx.fillStyle = `rgba(${light + 30},${light + 5},${light - 40},${alpha.toFixed(3)})`;
+    ctx.fillStyle = `rgba(${light + 40},${light + 28},${light + 5},${alpha.toFixed(3)})`;
     ctx.fillRect(x, 0, 1, 4);
   }
   return c;

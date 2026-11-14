@@ -158,7 +158,7 @@ function SpaceObjects({ robots, paused, belt, labels, rocks, onPick, rx }) {
             ref={(el) => {
               refs.current[`rock${i}`] = el;
             }}
-            aria-label="Asteroid: learn the word"
+            aria-label="Asteroid: open its fact card"
             onClick={() => onPick('asteroid')}
           >
             <svg viewBox="-9 -9 18 18" width={k.size} height={k.size} aria-hidden="true">

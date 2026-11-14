@@ -583,65 +583,6 @@
   width: 100%;
 }
 
-.say-btn {
-  flex: none;
-  width: 36px;
-  height: 36px;
-  display: inline-grid;
-  place-items: center;
-  padding: 0;
-  border: 1px solid #334155;
-  border-radius: 50%;
-  background: transparent;
-  color: #fff;
-  transition: background-color 0.15s, border-color 0.15s;
-}
-
-.say-btn:hover {
-  border-color: var(--cobalt-hi);
-  background: var(--panel-2);
-}
-
-.say-btn:active {
-  background: var(--cobalt);
-}
-
-.word {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-radius: var(--r-control);
-  background: var(--bg);
-  border: 1px solid var(--line);
-}
-
-.word-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.word-term {
-  font-weight: 700;
-  text-transform: capitalize;
-}
-
-.word-say {
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.word-head .say-btn {
-  margin-left: auto;
-  width: 32px;
-  height: 32px;
-}
-
-.word-def {
-  margin-top: 4px;
-  font-size: 14px;
-  color: #cbd5e1;
-}
-
 /* =====================================================================
    Learning blocks inside a robot page
    ===================================================================== */
@@ -678,10 +619,6 @@
 .story {
   font-size: 17px;
   line-height: 1.55;
-}
-
-.words .word:first-child {
-  margin-top: 0;
 }
 
 .quiz-q em {

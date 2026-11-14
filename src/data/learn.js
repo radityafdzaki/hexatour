@@ -58,47 +58,38 @@ export function wordsIn(text, limit = 4) {
 // Planet text for each rank. Astronaut uses the blurb in bodies.js.
 export const BODY_TEXT = {
   mercury: {
-    word: 'crater',
     cadet: 'Mercury is the smallest planet and the closest to the Sun. It is super hot during the day and freezing cold at night!',
     commander: 'Mercury has an oversized iron core, about 85% of its radius, and a dipole field offset 480 km north. Its orbit precesses in the way general relativity predicts.',
   },
   venus: {
-    word: 'atmosphere',
     cadet: 'Venus is wrapped in thick clouds. It is the hottest planet, even hotter than Mercury.',
     commander: 'A 92-bar CO₂ atmosphere drives a runaway greenhouse to about 465°C. Magellan’s radar showed a young, volcanic surface roughly 300 to 600 million years old.',
   },
   moon: {
-    word: 'moon',
     cadet: 'The Moon goes around Earth. Robots landed there before people did.',
     commander: 'Tidally locked, with a crust thicker on the far side. GRAIL gravity data put the crust at about 34 to 43 km, and permanently shadowed polar craters trap volatiles.',
   },
   mars: {
-    word: 'rover',
     cadet: 'Mars is the red planet. Robot cars called rovers drive on it and look for signs of old water.',
     commander: 'Surface pressure is under 1% of Earth’s. Rover data show long-lived lakes and rivers about 3.5 billion years ago, and Perseverance is caching samples for return.',
   },
   jupiter: {
-    word: 'gravity',
     cadet: 'Jupiter is the biggest planet. It is made of gas, so there is no ground to stand on.',
     commander: 'Juno’s gravity science points to a dilute, fuzzy core. The magnetosphere is the largest structure in the Solar System, fed by volcanic Io.',
   },
   saturn: {
-    word: 'rings',
     cadet: 'Saturn has beautiful rings made of ice and rock. It is light enough to float in a giant bathtub.',
     commander: 'Ring particles are mostly water ice. Cassini’s Grand Finale measured ring mass, suggesting the rings may be only 10 to 100 million years old.',
   },
   uranus: {
-    word: 'planet',
     cadet: 'Uranus is an ice giant that spins on its side. It looks pale blue-green.',
     commander: 'An axial tilt of 97.8° gives 42-year polar days. Voyager 2 found a magnetic field tilted 59° from the spin axis and offset from the center.',
   },
   neptune: {
-    word: 'orbit',
     cadet: 'Neptune is the farthest planet. It is cold, blue and very windy.',
     commander: 'Winds reach about 2,100 km/h, the fastest measured on any planet. Voyager 2 saw active nitrogen geysers on its captured moon Triton.',
   },
   deepspace: {
-    word: 'interstellar',
     cadet: 'Five spacecraft are flying so far away that they are leaving our Sun’s neighborhood.',
     commander: 'Voyager 1 crossed the heliopause at 121.6 au in 2012 and Voyager 2 at 119 au in 2018. The plasma-wave instruments confirmed the jump in density.',
   },

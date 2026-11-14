@@ -31,7 +31,8 @@ export function sizeVsEarth(id) {
 export function dayText(id) {
   const h = PLANET_DATA[id].dayHours;
   if (h < 48) return `${num(h, 1)} hours`;
-  return `${num(h / 24, 0)} Earth days`;
+  const days = h / 24;
+  return `${num(days, days < 100 ? 1 : 0)} Earth days`;
 }
 
 export function periodText(id) {

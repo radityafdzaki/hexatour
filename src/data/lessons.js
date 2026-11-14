@@ -1,15 +1,13 @@
-// What each world teaches at each rank.
-//   cadet:     a very short story, three word cards.
-//   astronaut: one paragraph; [[term]] or [[shown text|term]] marks a word
-//              that opens its meaning. One quick question.
-//   commander: a two-paragraph technical report and a Decode & Summarize
-//              exercise: fill the blanks in order with the right terms.
+// What each world teaches at each rank, from basic facts to astrophysics.
+//   cadet:     a very short space briefing (read aloud by Audio Briefing).
+//   astronaut: one planetary-science paragraph; [[term]] or [[shown text|term]]
+//              marks a science term that opens a short explanation. One quiz.
+//   commander: a two-part astrophysics report.
 
 export const BODY_LEARN = {
   mercury: {
     cadet: {
       story: 'Mercury is the smallest planet and the closest to the Sun. It is super hot during the day and freezing cold at night!',
-      words: ['orbit', 'crater', 'solar'],
     },
     astronaut: {
       text: 'Mercury travels around the Sun on a stretched, [[elliptical orbit]] once every 88 Earth days. It has almost no [[atmosphere]] to hold in heat, so it faces [[extreme temperatures]]: about 430°C by day and −180°C at night. Its gray surface is covered in [[craters|crater]] from ancient impacts. Mariner 10 made the first [[flyby]], and MESSENGER became the first [[orbiter]] to map the whole planet.',
@@ -25,17 +23,11 @@ export const BODY_LEARN = {
         'Mercury is the second densest planet after Earth: its iron-rich core extends to roughly 85% of the planetary radius, leaving a comparatively thin silicate mantle and crust. The planet is locked in a 3:2 spin-orbit resonance, rotating three times for every two orbits, so a single solar day lasts about 176 Earth days. This slow rotation, combined with an eccentric orbit (e ≈ 0.21), produces some of the largest surface temperature swings in the Solar System.',
         'MESSENGER’s gamma-ray, neutron and X-ray spectrometers revealed unexpectedly high abundances of volatile elements such as sulfur and potassium, challenging models in which Mercury formed under intense heat. Neutron spectrometry and Earth-based radar together identified hydrogen-rich deposits, interpreted as water ice, inside permanently shadowed polar craters. Magnetometer data showed an internal dipole field offset about 480 km north of the planet’s center.',
       ],
-      decode: {
-        sentence: 'Mercury rotates three times for every two orbits, a ___ resonance; its ___ core fills about 85% of its radius; and MESSENGER’s ___ helped find polar water ice.',
-        answers: ['3:2 spin-orbit', 'iron-rich', 'neutron spectrometer'],
-        extra: ['1:1 tidal', 'icy'],
-      },
     },
   },
   venus: {
     cadet: {
       story: 'Venus is wrapped in thick, yellow clouds. It is the hottest planet, even hotter than Mercury!',
-      words: ['atmosphere', 'volcano', 'radar'],
     },
     astronaut: {
       text: 'Venus is almost the same size as Earth, but its thick [[atmosphere]] is mostly carbon dioxide. This gas traps heat in a runaway [[greenhouse effect]], making the surface hot enough to melt lead, about 465°C. Clouds of sulfuric acid hide the ground, so NASA’s Magellan [[orbiter]] used [[radar]] to map it. The maps showed huge [[volcanoes|volcano]] and wide lava plains.',
@@ -51,17 +43,11 @@ export const BODY_LEARN = {
         'Venus’s surface pressure is about 92 bar, comparable to the pressure 900 m under the sea, and its carbon dioxide atmosphere sustains a runaway greenhouse that holds the surface near 465°C with little contrast between day and night. The planet rotates retrograde once every 243 Earth days, longer than its 225-day year, while the upper atmosphere super-rotates around the planet in about four days.',
         'Magellan’s synthetic aperture radar mapped about 98% of the surface. The relatively low and uniform density of impact craters suggests a surface only a few hundred million years old, consistent with widespread volcanic resurfacing. Pioneer Venus entry probes measured atmospheric structure at four separate sites, and its orbiter’s radar altimeter produced the first global topographic map.',
       ],
-      decode: {
-        sentence: 'Venus has a ___ atmosphere driving a runaway greenhouse; Magellan used ___ radar to map about 98% of the surface; and the planet’s rotation is ___.',
-        answers: ['carbon dioxide', 'synthetic aperture', 'retrograde'],
-        extra: ['nitrogen', 'prograde'],
-      },
     },
   },
   moon: {
     cadet: {
       story: 'The Moon goes around Earth. Robots landed there before astronauts did!',
-      words: ['moon', 'crater', 'gravity'],
     },
     astronaut: {
       text: 'The Moon is Earth’s only natural satellite, and it keeps the same face toward us as it [[orbits|orbit]]. With no [[atmosphere]], old [[craters|crater]] stay sharp for billions of years. In 1966 the Surveyor 1 [[lander]] showed the ground was firm enough for astronauts. Today the Lunar Reconnaissance Orbiter still maps the surface, and the GRAIL twins measured its [[gravity]].',
@@ -77,17 +63,11 @@ export const BODY_LEARN = {
         'The Moon is tidally locked, its rotation synchronized with its 27.3-day orbit, so the near side always faces Earth. Its crust is thicker on the far side, and the near-side maria are basaltic lava plains that filled large impact basins roughly 3 to 3.9 billion years ago. The leading formation model is a giant impact between the proto-Earth and a Mars-sized body.',
         'GRAIL’s twin spacecraft measured minute changes in their separation to map the lunar gravity field in high detail, indicating a highly fractured, porous crust with an average thickness of about 34 to 43 km. LRO’s Diviner radiometer recorded temperatures below −240°C inside permanently shadowed polar craters, cold traps where water ice can persist, and its cameras have imaged the Apollo landing sites.',
       ],
-      decode: {
-        sentence: 'The Moon is ___ to Earth; GRAIL used ___ ranging between twin spacecraft to map gravity; and LRO found ___ polar craters cold enough to trap ice.',
-        answers: ['tidally locked', 'inter-satellite', 'permanently shadowed'],
-        extra: ['retrograde', 'sunlit'],
-      },
     },
   },
   mars: {
     cadet: {
       story: 'Mars is the red planet. Robot cars called rovers drive on it and look for clues about old water!',
-      words: ['rover', 'crater', 'dust storm'],
     },
     astronaut: {
       text: 'Mars is a cold desert world with a thin [[atmosphere]] of carbon dioxide. Its red color comes from iron-rich dust, and huge [[dust storms|dust storm]] can cover the whole planet. NASA [[rovers|rover]] such as Curiosity and Perseverance have found rocks that formed in lakes and rivers long ago. The [[helicopter]] Ingenuity even made the first powered flight on another planet.',
@@ -103,17 +83,11 @@ export const BODY_LEARN = {
         'Mars has a mean surface pressure of about 6 millibar, less than 1% of Earth’s, so liquid water is unstable at the surface today. Yet orbital and rover evidence, including layered lake sediments in Gale Crater, a preserved river delta in Jezero Crater, and hydrated minerals such as jarosite and clays, records a wetter climate roughly 3.5 to 4 billion years ago.',
         'Curiosity’s Sample Analysis at Mars suite has detected complex organic molecules and seasonal variation in atmospheric methane. InSight’s seismometer recorded more than 1,300 marsquakes, constraining a liquid, iron-rich core about 1,830 km in radius. Perseverance is coring and sealing rock samples for possible return to Earth, and its MOXIE experiment produced oxygen from atmospheric carbon dioxide.',
       ],
-      decode: {
-        sentence: 'Jezero Crater preserves an ancient ___; InSight’s ___ recorded more than 1,300 marsquakes; and Perseverance is ___ rock samples for return to Earth.',
-        answers: ['river delta', 'seismometer', 'caching'],
-        extra: ['ice cap', 'magnetometer'],
-      },
     },
   },
   jupiter: {
     cadet: {
       story: 'Jupiter is the biggest planet. It is made of gas, so there is no ground to stand on!',
-      words: ['gas giant', 'storm', 'moon'],
     },
     astronaut: {
       text: 'Jupiter is a [[gas giant]] more than 11 times wider than Earth. Its stripes are bands of clouds, and the Great Red Spot is a [[storm]] bigger than our whole planet. Jupiter has a powerful [[magnetic field]] and dozens of [[moons|moon]]. Galileo was the first [[orbiter]] to circle it, and Juno now flies over its poles.',
@@ -129,17 +103,11 @@ export const BODY_LEARN = {
         'Jupiter contains more than twice the mass of all the other planets combined. Beneath its ammonia cloud decks, hydrogen is compressed into a metallic, electrically conducting fluid whose motion generates the strongest planetary magnetic field in the Solar System. The resulting magnetosphere traps intense radiation belts and is fed with sulfur and oxygen ions from volcanic Io.',
         'Juno’s gravity measurements indicate a dilute core whose heavy elements are mixed far into the envelope, rather than a compact rocky center. Its microwave radiometer probes the atmosphere hundreds of kilometers below the visible clouds. Earlier, Galileo’s entry probe sampled the atmosphere directly, and its magnetometer detected induced fields at Europa consistent with a salty subsurface ocean.',
       ],
-      decode: {
-        sentence: 'Jupiter’s magnetic field comes from metallic ___; Juno’s gravity data point to a ___ core; and Galileo’s ___ suggested an ocean under Europa’s ice.',
-        answers: ['hydrogen', 'dilute', 'magnetometer'],
-        extra: ['helium', 'solid rock'],
-      },
     },
   },
   saturn: {
     cadet: {
       story: 'Saturn has beautiful rings made of ice and rock. It is so light it could float in a giant bathtub!',
-      words: ['rings', 'ice', 'moon'],
     },
     astronaut: {
       text: 'Saturn is a [[gas giant]] famous for its bright [[rings]], made of countless pieces of [[ice]] and rock. The rings are wide but very thin, often only about 10 meters thick. Saturn has more than 140 known [[moons|moon]], including Titan with its thick atmosphere. The Cassini [[orbiter]] studied the planet for 13 years.',
@@ -155,17 +123,11 @@ export const BODY_LEARN = {
         'Saturn’s mean density, about 0.69 g/cm³, is lower than that of water. Its main rings span roughly 280,000 km yet are typically only about 10 m thick, and they consist overwhelmingly of water ice. Gaps such as the Cassini Division are sculpted by orbital resonances with moons; the inner edge of the Cassini Division lies at the 2:1 resonance with Mimas.',
         'During its Grand Finale, Cassini made 22 orbits between the planet and its rings, measuring the ring mass through gravity science; the low mass supports a geologically young age for the rings. The mission discovered water-rich plumes venting from Enceladus’s south pole, and the Huygens probe descended through Titan’s atmosphere onto a surface shaped by liquid methane and ethane.',
       ],
-      decode: {
-        sentence: 'The Cassini Division is shaped by a ___ with the moon Mimas; Cassini’s ___ measured the mass of the rings; and Enceladus vents ___ from its south pole.',
-        answers: ['2:1 resonance', 'gravity science', 'water-rich plumes'],
-        extra: ['tidal lock', 'lava flows'],
-      },
     },
   },
   uranus: {
     cadet: {
       story: 'Uranus is an ice giant that rolls around the Sun on its side. It looks pale blue-green!',
-      words: ['ice giant', 'rings', 'orbit'],
     },
     astronaut: {
       text: 'Uranus is an [[ice giant]], made mostly of water, ammonia and methane around a small rocky core. Its axis is tipped over by about 98 degrees, so it rolls along its [[orbit]] on its side. That tilt gives each pole about 42 years of sunlight and then 42 years of darkness. Uranus also has 13 faint, dark [[rings]], which Voyager 2 photographed during its 1986 [[flyby]].',
@@ -181,17 +143,11 @@ export const BODY_LEARN = {
         'Uranus has an obliquity of 97.8°, most likely the result of one or more giant impacts early in its history. Methane in its upper atmosphere absorbs red light, giving the planet its cyan color, and its internal heat flux is remarkably low compared with the other giant planets.',
         'Voyager 2, the only spacecraft to visit, found a magnetic field tilted about 59° from the rotation axis and offset from the planet’s center, implying generation in a shell of electrically conducting fluid rather than a deep core. It also discovered ten new moons and two new rings, and characterized the narrow, dark ring system first detected from Earth in 1977.',
       ],
-      decode: {
-        sentence: 'Uranus has an obliquity of about ___; its magnetic field is tilted about ___ from the spin axis; and ___ is the only spacecraft to have visited.',
-        answers: ['98°', '59°', 'Voyager 2'],
-        extra: ['23°', 'Cassini'],
-      },
     },
   },
   neptune: {
     cadet: {
       story: 'Neptune is the farthest planet from the Sun. It is cold, blue and super windy!',
-      words: ['ice giant', 'storm', 'moon'],
     },
     astronaut: {
       text: 'Neptune is an [[ice giant]] about 30 times farther from the Sun than Earth, so one trip around its [[orbit]] takes 165 years. Methane in its [[atmosphere]] makes it look deep blue. It has the fastest winds measured in the Solar System and dark [[storms|storm]] that come and go. In 1989 Voyager 2 made the only [[flyby]] and found geysers on the moon Triton.',
@@ -207,17 +163,11 @@ export const BODY_LEARN = {
         'Neptune radiates about 2.6 times more energy than it receives from the Sun, an internal heat source that helps drive zonal winds of about 2,100 km/h, the fastest measured on any planet. Voyager 2 imaged the Great Dark Spot, an anticyclone that had disappeared by the time the Hubble Space Telescope observed the planet in 1994.',
         'Triton orbits Neptune in the retrograde direction, strong evidence that it was captured from the Kuiper Belt. Voyager 2 observed active nitrogen geyser plumes rising about 8 km above its frozen surface, which at about −235°C is one of the coldest measured in the Solar System.',
       ],
-      decode: {
-        sentence: 'Neptune emits more energy than it receives because of internal ___; Triton’s ___ orbit suggests it was captured; and Voyager 2 saw nitrogen ___ on Triton.',
-        answers: ['heat', 'retrograde', 'geysers'],
-        extra: ['rings', 'prograde'],
-      },
     },
   },
   deepspace: {
     cadet: {
       story: 'Five spacecraft are flying so far away that they are leaving our Sun’s neighborhood!',
-      words: ['interstellar', 'spacecraft', 'star'],
     },
     astronaut: {
       text: 'Past Neptune, the Sun’s [[solar wind]] blows a giant bubble called the [[heliosphere]]. Voyager 1 and Voyager 2 have crossed its edge into [[interstellar]] space. Pioneer 10, Pioneer 11 and New Horizons are on paths that will also leave the Solar System. Their radio signals take many hours to reach Earth, even at the speed of light.',
@@ -233,11 +183,6 @@ export const BODY_LEARN = {
         'The heliopause marks where the outward pressure of the solar wind balances that of the interstellar medium. Voyager 1 crossed it in August 2012 at about 121.6 au, and Voyager 2 in November 2018 at about 119 au; plasma instruments recorded the jump in electron density that defines the boundary.',
         'Both Voyagers are powered by radioisotope thermoelectric generators whose output falls by about 4 watts per year, forcing engineers to switch off instruments progressively. New Horizons, after its 2015 Pluto flyby, imaged the Kuiper Belt object Arrokoth in 2019 and found a contact binary formed by a gentle merger, evidence for local gravitational collapse in the early solar nebula.',
       ],
-      decode: {
-        sentence: 'Voyager 1 crossed the ___ in 2012; both Voyagers run on ___ power; and Arrokoth is a ___ binary.',
-        answers: ['heliopause', 'radioisotope', 'contact'],
-        extra: ['solar', 'asteroid belt'],
-      },
     },
   },
 };

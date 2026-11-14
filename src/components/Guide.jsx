@@ -23,8 +23,8 @@ export default function Guide({ onClose }) {
       <section>
         <h3>Tap things in space</h3>
         <ul className="plain">
-          <li>Tap a planet, a passing asteroid or a robot spacecraft to open a fact card with a key science term.</li>
-          <li>Press a speaker button to hear the term or the briefing read aloud.</li>
+          <li>Tap a planet, a passing asteroid or a robot spacecraft to open a fact card with its key numbers.</li>
+          <li>Press Audio Briefing to hear a world’s briefing read aloud.</li>
           <li>From a planet’s card, open the list of robots that went there, then pick one to read its story.</li>
         </ul>
       </section>
@@ -42,7 +42,7 @@ export default function Guide({ onClose }) {
           </li>
           <li>
             <strong>Commander, Astrophysics &amp; Telemetry Data</strong>: an astrophysics report, the Planetary
-            Telemetry &amp; Mission Specs tables, and a Mission Debrief.
+            Telemetry &amp; Mission Specs tables, and a Gravity Lab (Travel Lab in deep space).
           </li>
         </ul>
       </section>

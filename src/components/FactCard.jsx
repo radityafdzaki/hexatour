@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { BODY_TEXT, ROBOT_TEXT, canSpeak, lookup, speak, wordsIn } from '../data/learn.js';
-import { CloseIcon, SpeakerIcon } from './Icons.jsx';
+import { BODY_TEXT, ROBOT_TEXT } from '../data/learn.js';
+import { distanceNow } from '../data/robots.js';
+import { EARTH, PLANET_DATA, dayText } from '../data/planetData.js';
+import { CloseIcon } from './Icons.jsx';
 
 const ASTEROID_FACT = {
   cadet: 'Some asteroids are as small as a car. Some are as big as a city!',
@@ -8,32 +10,29 @@ const ASTEROID_FACT = {
   commander: 'The main belt holds well over a million bodies larger than 1 km, yet its total mass is only about 3% of the Moon’s.',
 };
 
+const fmt = (n, d = 0) => n.toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
+
 export function featuredRobot(robots) {
   return robots.find((r) => r.status.state === 'active') || robots[0];
 }
 
-function Say({ text, label }) {
-  if (!canSpeak) return null;
-  return (
-    <button type="button" className="say-btn" onClick={() => speak(text)} aria-label={label || `Hear "${text}"`} title="Hear it">
-      <SpeakerIcon />
-    </button>
-  );
-}
-
-export function WordLine({ word, level }) {
-  const g = lookup(word);
-  if (!g) return null;
-  return (
-    <div className="word">
-      <div className="word-head">
-        <span className="word-term">{word}</span>
-        <span className="word-say">/{g.say}/</span>
-        <Say text={word} />
-      </div>
-      <p className="word-def">{level === 'cadet' ? g.kid : g.def}</p>
-    </div>
-  );
+// Quick numbers shown on each card: science facts, not vocabulary.
+function planetStats(body, robots) {
+  if (body.deep) {
+    const far = robots.filter((r) => r.horizons).sort((a, b) => b.horizons.rangeAu - a.horizons.rangeAu)[0];
+    const d = distanceNow(far.horizons, Date.now());
+    return [
+      ['Farthest robot', far.name],
+      ['Its distance from the Sun', `${fmt(d.au, 1)} au`],
+      ['Radio signal travel time', `${fmt(d.lightHours, 1)} hours`],
+    ];
+  }
+  const p = PLANET_DATA[body.id];
+  return [
+    ['Gravity', `${fmt(p.gravity, 1)} m/s², ${fmt(p.gravity / EARTH.gravity, 2)} × Earth`],
+    ['One day lasts', dayText(body.id)],
+    p.aroundEarth ? ['Distance from Earth', '384,400 km'] : ['Distance from the Sun', `${fmt(p.au, 2)} au`],
+  ];
 }
 
 export default function FactCard({ fact, level, robots, onClose, onSeeRobots, onOpenRobot }) {
@@ -48,32 +47,39 @@ export default function FactCard({ fact, level, robots, onClose, onSeeRobots, on
   const { kind, body } = fact;
   let eyebrow;
   let title;
-  let word;
   let text;
+  let stats;
   let action = null;
 
   if (kind === 'asteroid') {
     eyebrow = body.deep ? 'Icy rock in deep space' : 'Space rock';
     title = 'Asteroid';
-    word = 'asteroid';
     text = ASTEROID_FACT[level];
+    stats = [
+      ['Main belt', '2.2 to 3.2 au from the Sun'],
+      ['Largest object', 'Ceres, about 940 km wide'],
+      ['Made of', 'Rock, metal and some ice'],
+    ];
   } else if (kind === 'robot' || kind === 'craft') {
     const robot = robots.find((r) => r.id === fact.id) || featuredRobot(robots);
     eyebrow = `Robot explorer · ${robot.type}`;
     title = robot.name;
-    word = wordsIn(robot.type, 1)[0] || 'spacecraft';
     text = level === 'astronaut' ? robot.science[0] : ROBOT_TEXT[robot.id]?.[level] || robot.science[0];
+    stats = [
+      ['Launched', robot.launch],
+      ['Status', robot.status.state === 'active' ? 'Active' : robot.status.leftOnSite ? 'Ended, still on site' : 'Ended'],
+      ['Where', robot.location],
+    ];
     action = (
       <button type="button" className="btn btn--main" onClick={() => onOpenRobot(robot.id)}>
         Read its story
       </button>
     );
   } else {
-    const t = BODY_TEXT[body.id];
     eyebrow = body.kind;
     title = body.name;
-    word = t.word;
-    text = level === 'astronaut' ? body.blurb : t[level];
+    text = level === 'astronaut' ? body.blurb : BODY_TEXT[body.id][level];
+    stats = planetStats(body, robots);
     action = (
       <button type="button" className="btn btn--main" onClick={onSeeRobots}>
         {robots.length === 1 ? 'Meet its robot' : `See its ${robots.length} robots`}
@@ -88,7 +94,6 @@ export default function FactCard({ fact, level, robots, onClose, onSeeRobots, on
           <p className="fact-eyebrow">{eyebrow}</p>
           <h2 id="fact-title" className="fact-title">
             {title}
-            <Say text={title} label={`Hear "${title}"`} />
           </h2>
         </div>
         <button type="button" className="icon-btn" aria-label="Close fact card" onClick={onClose}>
@@ -96,7 +101,14 @@ export default function FactCard({ fact, level, robots, onClose, onSeeRobots, on
         </button>
       </div>
       <p className="fact-text">{text}</p>
-      <WordLine word={word} level={level} />
+      <dl className="fact-stats">
+        {stats.map(([k, v]) => (
+          <div key={k}>
+            <dt>{k}</dt>
+            <dd>{v}</dd>
+          </div>
+        ))}
+      </dl>
       {action && <div className="fact-actions">{action}</div>}
     </aside>
   );

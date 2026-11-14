@@ -4,7 +4,7 @@ import { BODY_LEARN, ROBOT_SPEC, parseMarked, plainText } from '../data/lessons.
 import { StatusTag } from './Status.jsx';
 import { distanceNow } from '../data/robots.js';
 import { SITES } from '../data/orbits.js';
-import { dayText, sizeVsEarth, telemetryRows } from '../data/planetData.js';
+import { EARTH, PLANET_DATA, dayText, sizeVsEarth, telemetryRows } from '../data/planetData.js';
 import { SpeakerIcon } from './Icons.jsx';
 
 // ---------- shared pieces ----------
@@ -35,39 +35,7 @@ export function ListenButton({ text, label = 'Audio Briefing' }) {
   );
 }
 
-function Say({ text }) {
-  if (!canSpeak) return null;
-  return (
-    <button type="button" className="say-btn" onClick={() => speak(text)} aria-label={`Hear "${text}"`} title="Hear it">
-      <SpeakerIcon />
-    </button>
-  );
-}
-
-// Cadet: three big picture cards for the key words.
-export function WordCards({ words }) {
-  return (
-    <div className="word-cards">
-      {words.map((w) => {
-        const g = lookup(w);
-        if (!g) return null;
-        return (
-          <div key={w} className="word-card">
-            <span className="word-card-icon" aria-hidden="true">
-              {g.icon}
-            </span>
-            <span className="word-card-term">{w}</span>
-            <span className="word-card-say">/{g.say}/</span>
-            <span className="word-card-def">{g.kid}</span>
-            <Say text={w} />
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// Astronaut: a paragraph whose key words open their meaning.
+// Astronaut: a paragraph whose science terms open a short explanation.
 export function MarkedText({ text }) {
   const [term, setTerm] = useState(null);
   useEffect(() => setTerm(null), [text]);
@@ -94,15 +62,8 @@ export function MarkedText({ text }) {
       </p>
       {g && (
         <div className="term-card" role="status">
-          <div className="term-card-head">
-            <span className="term-card-word">{term}</span>
-            <span className="word-say">/{g.say}/</span>
-            <Say text={term} />
-          </div>
+          <p className="term-card-word">Science note: {term}</p>
           <p>{g.def}</p>
-          <p className="term-card-ex">
-            <span>Example:</span> {g.ex}
-          </p>
         </div>
       )}
     </div>
@@ -155,70 +116,110 @@ function seededShuffle(list, seed) {
   return out;
 }
 
-// Commander: fill the blanks of a mission summary with technical terms.
-export function DecodeSummarize({ decode, seed = 7 }) {
-  const chips = useMemo(() => seededShuffle([...decode.answers, ...decode.extra], seed), [decode, seed]);
-  const [filled, setFilled] = useState([]);
-  const [checked, setChecked] = useState(false);
-  useEffect(() => {
-    setFilled([]);
-    setChecked(false);
-  }, [decode]);
-  const pieces = decode.sentence.split('___');
-  const done = filled.length === decode.answers.length;
-  const score = filled.filter((f, i) => f === decode.answers[i]).length;
+const G = 6.674e-11; // gravitational constant, m^3 kg^-1 s^-2
 
+// Commander: work out what this world's gravity does to you, and its
+// escape velocity from its mass and radius (v = sqrt(2GM / R)).
+function GravityLab({ body }) {
+  const p = PLANET_DATA[body.id];
+  const [kg, setKg] = useState('40');
+  const mass = Number(kg);
+  const valid = kg !== '' && Number.isFinite(mass) && mass > 0 && mass < 1000;
+  const ratio = p.gravity / EARTH.gravity;
+  const escape = Math.sqrt((2 * G * p.mass * 1e24) / ((p.diameter / 2) * 1000)) / 1000;
+  const where = body.inText || body.name;
   return (
     <section className="widget">
       <div className="widget-head">
-        <h3>Mission Debrief</h3>
-        <span className="learn-chip">Fill {decode.answers.length} blanks</span>
+        <h3>Gravity Lab</h3>
+        <span className="learn-chip">g = {fmt(p.gravity, 1)} m/s²</span>
       </div>
-      <p className="fine">Tap the right science terms, in order, to complete the debrief.</p>
-      <p className="decode-sentence">
-        {pieces.map((piece, i) => (
-          <span key={i}>
-            {piece}
-            {i < pieces.length - 1 && (
-              <span
-                className={`blank ${filled[i] ? 'is-filled' : ''} ${checked ? (filled[i] === decode.answers[i] ? 'is-right' : 'is-wrong') : ''}`}
-              >
-                {filled[i] || `(${i + 1})`}
-              </span>
-            )}
-          </span>
-        ))}
+      <label className="lab-field" htmlFor={`lab-${body.id}`}>
+        Your mass on Earth (kg)
+        <input
+          id={`lab-${body.id}`}
+          type="number"
+          inputMode="decimal"
+          min="1"
+          max="999"
+          value={kg}
+          onChange={(e) => setKg(e.target.value)}
+        />
+      </label>
+      {valid ? (
+        <dl className="telemetry lab-out">
+          <div>
+            <dt>A bathroom scale on {where} would read</dt>
+            <dd>{fmt(mass * ratio, 1)} kg</dd>
+          </div>
+          <div>
+            <dt>A 50 cm jump on Earth becomes</dt>
+            <dd>{fmt(50 / ratio, 0)} cm</dd>
+          </div>
+          <div>
+            <dt>Escape velocity from {where}</dt>
+            <dd>{fmt(escape, 1)} km/s</dd>
+          </div>
+          <div>
+            <dt>Escape velocity from Earth</dt>
+            <dd>11.2 km/s</dd>
+          </div>
+        </dl>
+      ) : (
+        <p className="lab-error" role="alert">
+          Enter a mass between 1 and 999 kg.
+        </p>
+      )}
+      <p className="fine">
+        Your mass stays the same everywhere; your weight changes with gravity. Escape velocity is the speed needed to
+        leave {where} without further thrust, worked out from its mass and radius.
       </p>
-      <div className="chips">
-        {chips.map((c) => (
-          <button key={c} type="button" className="chip" disabled={filled.includes(c) || done} onClick={() => setFilled((f) => (f.includes(c) || f.length >= decode.answers.length ? f : [...f, c]))}>
-            {c}
+    </section>
+  );
+}
+
+// Commander, deep space: how long the farthest craft would take to reach
+// places beyond the planets at its present speed.
+const DESTINATIONS = [
+  ['heliopause', 'The heliopause (Voyager 1 crossed it at 121.6 au)', 121.6],
+  ['oort', 'The inner edge of the Oort Cloud (about 2,000 au)', 2000],
+  ['proxima', 'Proxima Centauri, the nearest star (about 268,000 au)', 268000],
+];
+
+function TravelLab({ robots }) {
+  const craft = robots.filter((r) => r.horizons).sort((a, b) => b.horizons.rangeAu - a.horizons.rangeAu)[0];
+  const [dest, setDest] = useState('proxima');
+  const d = distanceNow(craft.horizons, Date.now());
+  const auPerYear = (craft.horizons.rateKmS * 3.156e7) / 1.496e8;
+  const [, label, au] = DESTINATIONS.find((x) => x[0] === dest);
+  const left = au - d.au;
+  return (
+    <section className="widget">
+      <div className="widget-head">
+        <h3>Travel Lab</h3>
+        <span className="learn-chip">
+          {craft.name} at {fmt(craft.horizons.rateKmS, 1)} km/s
+        </span>
+      </div>
+      <div className="lab-choices" role="group" aria-label="Destination">
+        {DESTINATIONS.map(([id, text]) => (
+          <button key={id} type="button" className="quiz-choice" aria-pressed={dest === id} onClick={() => setDest(id)}>
+            {text}
           </button>
         ))}
       </div>
-      <div className="widget-actions">
-        <button type="button" className="btn btn--main" disabled={!done || checked} onClick={() => setChecked(true)}>
-          Check summary
-        </button>
-        <button
-          type="button"
-          className="btn btn--quiet"
-          onClick={() => {
-            setFilled([]);
-            setChecked(false);
-          }}
-        >
-          Reset
-        </button>
-      </div>
-      {checked && (
-        <p className="quiz-result" role="status">
-          <strong>
-            {score} of {decode.answers.length} correct.
-          </strong>{' '}
-          {score === decode.answers.length ? 'Debrief complete. Well done, Commander.' : `Answer: ${decode.answers.join(' · ')}.`}
-        </p>
-      )}
+      <p className="lab-answer" role="status">
+        {left <= 0 ? (
+          <>
+            {craft.name} has already passed {label.split(' (')[0].toLowerCase()}.
+          </>
+        ) : (
+          <>
+            About <strong>{fmt(left / auPerYear, 0)} years</strong> to cover the remaining {fmt(left, 0)} au.
+          </>
+        )}
+      </p>
+      <p className="fine">At {fmt(auPerYear, 2)} au per year, worked out from its speed away from the Sun (NASA/JPL Horizons).</p>
     </section>
   );
 }
@@ -531,7 +532,7 @@ export function Briefing({ body, level, robots, inspect, onInspect }) {
         ))}
       </div>
       <TelemetryPanel body={body} robots={robots} />
-      <DecodeSummarize decode={lesson.commander.decode} seed={body.id.length * 31} />
+      {body.deep ? <TravelLab robots={robots} /> : <GravityLab body={body} />}
     </div>
   );
 }

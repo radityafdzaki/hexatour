@@ -26,9 +26,7 @@ export function ListenButton({ text, label = 'Listen to Story' }) {
   };
   return (
     <button type="button" className={on ? 'listen-btn is-on' : 'listen-btn'} onClick={play}>
-      <span className="listen-icon" aria-hidden="true">
-        🔊
-      </span>
+      <SpeakerIcon />
       {on ? 'Stop' : label}
     </button>
   );
@@ -190,7 +188,7 @@ export function DecodeSummarize({ decode, seed = 7 }) {
       </p>
       <div className="chips">
         {chips.map((c) => (
-          <button key={c} type="button" className="chip" disabled={filled.includes(c) || done} onClick={() => setFilled([...filled, c])}>
+          <button key={c} type="button" className="chip" disabled={filled.includes(c) || done} onClick={() => setFilled((f) => (f.includes(c) || f.length >= decode.answers.length ? f : [...f, c]))}>
             {c}
           </button>
         ))}
@@ -245,7 +243,7 @@ export function OrderChallenge({ robot }) {
           const state = done ? (events.right[at] === t ? 'is-right' : 'is-wrong') : '';
           return (
             <li key={t}>
-              <button type="button" className={`order-item ${at >= 0 ? 'is-picked' : ''} ${state}`} disabled={at >= 0} onClick={() => setOrder([...order, t])}>
+              <button type="button" className={`order-item ${at >= 0 ? 'is-picked' : ''} ${state}`} disabled={at >= 0} onClick={() => setOrder((o) => (o.includes(t) ? o : [...o, t]))}>
                 <span className="order-num">{at >= 0 ? at + 1 : ''}</span>
                 {t}
               </button>
@@ -335,7 +333,7 @@ export function Briefing({ body, level, robots }) {
       <div className="report">
         {lesson.commander.report.map((p, i) => (
           <p key={i}>
-            <span className="report-tag">{i === 0 ? '§1 Physical state' : '§2 Mission findings'}</span>
+            <span className="report-tag">{i === 0 ? '1. Physical state' : '2. Mission findings'}</span>
             {p}
           </p>
         ))}

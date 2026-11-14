@@ -10,7 +10,14 @@ The project name is HEXATOUR, from the team's presentation. There is no logo, on
 - **Dark theme, no light toggle.** The subject is planets photographed against space. A white page would
   fight every image on it.
 - **Space black first, NASA blue as the accent.** Page #030508, panels #0A0E17. NASA blue (#0B3D91, #2563EB) only on the main buttons, active states, icons and thin borders. Text is white (#FFFFFF) and light grey (#CBD5E1); small blue text uses a lighter tint of #2563EB so it stays legible on black.
-- **Dark glass top bar.** Logo, Visual Overlay and Learn on the left; 2D/3D, pause and the ⋮ menu (User Guide, Report a Bug) on the right. Credits moved from the footer into the User Guide.
+- **One blurred surface, the top bar.** Planets and stars scroll under it, and the blur keeps its controls readable. Menus, cards and sheets are solid panels: blur everywhere would make the whole interface feel like floating glass.
+- **One accent at a time.** Cobalt fill marks only the main action on a screen (see the robots, the chosen rank, the right answer). Secondary actions, such as Listen to Story, are outlined so they never compete with it.
+- **Two glows, both markers.** The pick ring around a planet with an open fact card, and the landing-site lights on the globe. Nothing else glows.
+- **Radius scale.** Controls 6px and panels 10px, close to the squared-off look of hardware panels. Circles only for things that are round: dots, icon buttons, globes. The overlay switches keep their pill track because that shape is how a switch is recognized.
+- **Callout labels.** Planet and robot names are plain text on a thin leader line, like an annotated mission diagram. This is the label motif in 2D and 3D.
+- **Sentence-case labels.** No uppercase, wide-tracked eyebrows. Small labels are muted grey text.
+- **Icons drawn for the site,** with square ends and sharp corners like engineering line work. Word cards use emoji pictures because young readers recognize them before the word.
+- Logo, Visual Overlay and Learn on the left; 2D/3D, pause and the ⋮ menu (User Guide, Report a Bug) on the right. Credits live in the User Guide.
 - **Status in blue, white and grey.** Active is blue, Ended is grey, Left on site is white. Each status also has its own shape and word, so it never depends on color.
 - **Archivo, set wide, for headings.** Wide grotesque lettering echoes the lettering painted on NASA
   hardware. IBM Plex Sans for body text because it reads like a technical document, which this is.

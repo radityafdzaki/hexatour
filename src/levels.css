@@ -1,5 +1,5 @@
-/* Learning ranks, real robots in space, and the black-first palette.
-   Loaded after redesign.css. */
+/* Learning ranks and the robots in space. Loaded after redesign.css.
+   Reasons for each choice are in DESIGN.md. */
 
 /* ---------- Slide copy per rank ---------- */
 
@@ -26,25 +26,27 @@
   margin-top: 0;
 }
 
+/* Large for young readers, but outlined: the cobalt fill stays reserved for
+   the one main action on the slide (seeing the robots). */
 .listen-btn {
   display: inline-flex;
   align-items: center;
   gap: 12px;
   min-height: 56px;
   margin-top: 16px;
-  padding: 12px 26px 12px 18px;
-  border: 1px solid var(--cobalt-hi);
-  border-radius: 999px;
-  background: var(--cobalt);
+  padding: 12px 24px 12px 18px;
+  border: 1px solid #94a3b8;
+  border-radius: var(--r-control);
+  background: transparent;
   color: #fff;
   font-size: 18px;
   font-weight: 600;
-  box-shadow: 0 6px 22px rgba(37, 99, 235, 0.3);
-  transition: background-color 0.15s, transform 0.1s;
+  transition: background-color 0.15s, border-color 0.15s, transform 0.1s;
 }
 
 .listen-btn:hover {
-  background: var(--cobalt-hi);
+  border-color: #fff;
+  background: var(--panel-2);
 }
 
 .listen-btn:active {
@@ -56,8 +58,9 @@
   color: var(--bg);
 }
 
-.listen-icon {
-  font-size: 22px;
+.listen-btn svg {
+  width: 22px;
+  height: 22px;
 }
 
 /* ---------- Briefing panel (desktop: under the slider) ---------- */
@@ -71,7 +74,7 @@
 
 .briefing-title {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 12px;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--line);
@@ -112,7 +115,9 @@
   color: #fff;
 }
 
-/* ---------- Cadet: Space Word Cards ---------- */
+/* ---------- Cadet: Space Word Cards ----------
+   Three equal cards on purpose: the three words carry equal weight, so no
+   card is made to look more important than the others. */
 
 .word-cards {
   display: grid;
@@ -128,11 +133,11 @@
   align-content: start;
   padding: 18px 16px 16px;
   border: 1px solid var(--line);
-  border-top: 3px solid var(--cobalt-hi);
-  border-radius: 14px;
+  border-radius: var(--r-panel);
   background: var(--panel);
 }
 
+/* The picture is the word's emoji: children read it before the word. */
 .word-card-icon {
   font-size: 36px;
   line-height: 1.1;
@@ -161,8 +166,8 @@
   position: absolute;
   top: 14px;
   right: 14px;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
 }
 
 /* ---------- Astronaut: tappable words and the quick check ---------- */
@@ -185,7 +190,6 @@
   text-decoration-color: var(--sky);
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
-  cursor: pointer;
 }
 
 .term:hover,
@@ -193,13 +197,16 @@
   color: var(--sky);
 }
 
+.term:active {
+  color: #fff;
+}
+
 .term-card {
   max-width: 620px;
   margin-top: 12px;
   padding: 14px 16px;
-  border: 1px solid var(--line-strong);
-  border-left: 3px solid var(--cobalt-hi);
-  border-radius: 10px;
+  border: 1px solid #2a3343;
+  border-radius: var(--r-panel);
   background: var(--panel);
   animation: dd-in 0.18s ease-out;
 }
@@ -218,8 +225,6 @@
 
 .term-card-head .say-btn {
   margin-left: auto;
-  width: 32px;
-  height: 32px;
 }
 
 .term-card-ex {
@@ -237,7 +242,7 @@
 .widget {
   padding: 16px 18px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--r-panel);
   background: var(--panel);
 }
 
@@ -247,7 +252,7 @@
 
 .widget-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
@@ -270,18 +275,22 @@
   min-height: 48px;
   padding: 10px 14px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--r-control);
   background: var(--bg);
   text-align: left;
   transition: border-color 0.15s, background-color 0.15s;
 }
 
 .quiz-choice:hover:not(:disabled) {
-  border-color: var(--line-strong);
+  border-color: #64748b;
+  background: var(--panel-2);
+}
+
+.quiz-choice:active:not(:disabled) {
+  background: #1a2130;
 }
 
 .quiz-choice:disabled {
-  cursor: default;
   opacity: 0.55;
 }
 
@@ -292,7 +301,7 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  border: 1px solid var(--line-strong);
+  border: 1px solid #475569;
   font-size: 13px;
   font-weight: 600;
 }
@@ -313,13 +322,8 @@
 
 .report {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   max-width: 900px;
-  padding: 18px 20px;
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--cobalt-hi);
-  border-radius: 10px;
-  background: var(--panel);
   font-size: 15px;
   line-height: 1.7;
   color: #e2e8f0;
@@ -327,12 +331,12 @@
 
 .report-tag {
   display: block;
-  margin-bottom: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--sky);
+  margin-bottom: 2px;
+  font-family: var(--display);
+  font-stretch: 112%;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
 }
 
 .compare td.wrap {
@@ -362,7 +366,7 @@
   min-width: 92px;
   margin: 0 4px;
   padding: 0 10px;
-  border-bottom: 2px dashed var(--line-strong);
+  border-bottom: 2px dashed #64748b;
   color: var(--muted);
   text-align: center;
   line-height: 1.6;
@@ -376,7 +380,6 @@
 
 .blank.is-right {
   border-color: var(--cobalt-hi);
-  background: rgba(37, 99, 235, 0.18);
 }
 
 .blank.is-wrong {
@@ -392,22 +395,25 @@
 }
 
 .chip {
-  min-height: 40px;
+  min-height: 44px;
   padding: 6px 14px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border: 1px solid #475569;
+  border-radius: 4px;
   background: var(--bg);
   font-size: 14px;
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
 .chip:hover:not(:disabled) {
+  border-color: #fff;
+  background: var(--panel-2);
+}
+
+.chip:active:not(:disabled) {
   background: var(--cobalt);
 }
 
 .chip:disabled {
   opacity: 0.35;
-  cursor: default;
 }
 
 .widget-actions {
@@ -434,17 +440,18 @@
   min-height: 48px;
   padding: 10px 14px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--r-control);
   background: var(--bg);
   text-align: left;
 }
 
 .order-item:hover:not(:disabled) {
-  border-color: var(--line-strong);
+  border-color: #64748b;
+  background: var(--panel-2);
 }
 
-.order-item:disabled {
-  cursor: default;
+.order-item:active:not(:disabled) {
+  background: #1a2130;
 }
 
 .order-num {
@@ -454,11 +461,12 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  border: 1px solid var(--line-strong);
+  border: 1px solid #475569;
   font-weight: 700;
 }
 
 .order-item.is-picked .order-num {
+  border-color: var(--cobalt-hi);
   background: var(--cobalt);
 }
 
@@ -473,33 +481,39 @@
 /* ---------- Robots in space (2D) ---------- */
 
 .orbiter--craft {
-  min-width: 40px;
-  min-height: 40px;
+  min-width: 44px;
+  min-height: 44px;
 }
 
-.orbiter--craft svg {
-  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.25));
-}
-
+/* Callouts, matching the planet label: name on a short leader line. */
 .craft-label,
 .beacon-label {
   position: absolute;
   left: 50%;
-  top: calc(100% - 4px);
+  top: calc(100% - 2px);
   translate: -50% 0;
-  padding: 1px 8px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  background: rgba(3, 5, 8, 0.82);
+  padding-top: 8px;
   font-size: 11px;
   font-weight: 600;
+  color: #e2e8f0;
   white-space: nowrap;
   pointer-events: none;
+  text-shadow: 0 1px 2px #000, 0 0 6px #000;
+}
+
+.craft-label::before,
+.beacon-label::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 6px;
+  border-left: 1px solid #64748b;
 }
 
 .orbiter--craft:hover .craft-label,
 .orbiter--craft:focus-visible .craft-label {
-  border-color: #fff;
+  color: #fff;
 }
 
 /* Landing sites ride on the scrolling globe surface. */
@@ -507,6 +521,8 @@
   animation: none;
 }
 
+/* A landing light: the second and last glow on the page, because a site
+   must stand out against any surface color. */
 .beacon {
   position: absolute;
   z-index: 3;
@@ -515,12 +531,12 @@
   translate: -50% -50%;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.55), 0 0 10px rgba(37, 99, 235, 0.9);
+  box-shadow: 0 0 0 2px var(--cobalt-hi), 0 0 8px rgba(37, 99, 235, 0.8);
   cursor: pointer;
 }
 
 .beacon-label {
-  top: calc(100% + 5px);
+  top: calc(100% + 2px);
   font-size: 10px;
   /* Counter the globe's tilt so names read straight. */
   rotate: calc(var(--tilt, 0deg) * -1);
@@ -537,22 +553,6 @@
 
 .rings--thin {
   width: 190%;
-}
-
-/* ---------- Black-first surfaces ---------- */
-
-dialog.sheet {
-  background: rgba(10, 14, 23, 0.97);
-}
-
-.robot-row {
-  background: var(--panel);
-}
-
-.topbar,
-.dd-panel,
-.fact {
-  border-color: rgba(37, 99, 235, 0.35);
 }
 
 @media (max-width: 767px) {
@@ -577,9 +577,5 @@ dialog.sheet {
 
   .briefing-story {
     font-size: 19px;
-  }
-
-  .report {
-    padding: 14px;
   }
 }

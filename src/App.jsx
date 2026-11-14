@@ -153,7 +153,15 @@ export default function App() {
       if (window.matchMedia('(min-width: 768px)').matches) {
         const track = trackRef.current;
         const left = el.offsetLeft - (track.clientWidth - el.offsetWidth) / 2;
+        const start = track.scrollLeft;
         track.scrollTo({ left, behavior });
+        // Some browsers drop a smooth scroll on a snapping container. If it
+        // has not started moving shortly after, jump there instead.
+        if (behavior === 'smooth' && Math.abs(left - start) > 2) {
+          setTimeout(() => {
+            if (Math.abs(track.scrollLeft - start) < 1) track.scrollTo({ left, behavior: 'auto' });
+          }, 250);
+        }
       } else {
         // Phones jump straight there: a smooth scripted scroll fights the
         // page's mandatory scroll snapping and can stall. Swiping stays smooth.
@@ -384,9 +392,7 @@ export default function App() {
             <div className="briefing-title">
               <h2 id="briefing-heading">
                 {briefingTitle(level)}: {BODIES[active].name}
-              </h2>
-              <span className="learn-chip">{LEVEL_BY_ID[level].name}</span>
-            </div>
+              </h2>            </div>
             <Briefing body={BODIES[active]} level={level} robots={robotsFor(BODIES[active].id)} />
           </section>
         )}

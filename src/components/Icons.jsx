@@ -1,6 +1,8 @@
-// Small line icons. All use currentColor so they follow the text color.
+// Small line icons drawn for this site. Square ends and sharp corners, like
+// the line work on an engineering drawing, to match the mission-archive style.
+// All use currentColor so they follow the text color.
 
-const base = { viewBox: '0 0 24 24', width: 18, height: 18, 'aria-hidden': true, fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' };
+const base = { viewBox: '0 0 24 24', width: 18, height: 18, 'aria-hidden': true, fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'square', strokeLinejoin: 'miter' };
 
 export const EyeIcon = (p) => (
   <svg {...base} {...p}>

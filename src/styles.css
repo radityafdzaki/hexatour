@@ -16,6 +16,10 @@
   /* A lighter tint of #2563eb, used only for small text so it stays legible on black. */
   --sky: #6f9cf5;
   --ended: #94a3b8;
+  /* Radius scale: controls are near-square like hardware switches, panels a
+     little softer, and only round things (dots, icon buttons, globes) are circles. */
+  --r-control: 6px;
+  --r-panel: 10px;
   --header-h: 64px;
   --planet: clamp(180px, min(24vw, 36vh), 330px);
   --slide-w: clamp(320px, 38vw, 560px);
@@ -109,6 +113,13 @@ button {
   cursor: pointer;
 }
 
+label[for],
+label:has(input[type='checkbox']),
+summary,
+select {
+  cursor: pointer;
+}
+
 button:disabled {
   cursor: not-allowed;
 }
@@ -133,32 +144,16 @@ button:disabled {
   transform: translateY(1px);
 }
 
+/* The one accent: NASA cobalt marks the main action on each screen. */
 .btn--main {
   background: var(--cobalt);
   color: #fff;
   font-weight: 600;
-  border-color: rgba(37, 99, 235, 0.45);
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15), 0 6px 22px rgba(37, 99, 235, 0.28);
+  border-color: var(--cobalt-hi);
 }
 
 .btn--main:hover {
   background: var(--cobalt-hi);
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3), 0 8px 28px rgba(37, 99, 235, 0.4);
-}
-
-.btn--soft {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 8px 14px;
-  background: transparent;
-  border-color: var(--line-strong);
-  color: #fff;
-}
-
-.btn--soft:hover {
-  background: rgba(11, 61, 145, 0.75);
 }
 
 .btn--quiet {
@@ -669,8 +664,8 @@ button:disabled {
   gap: 8px;
   min-height: 44px;
   padding: 8px 14px 8px 10px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border: 1px solid #334155;
+  border-radius: var(--r-control);
   background: transparent;
   font-weight: 500;
   transition: background-color 0.15s, border-color 0.15s;
@@ -678,8 +673,13 @@ button:disabled {
 
 .close-btn:hover,
 .back-btn:hover {
-  background: rgba(11, 61, 145, 0.6);
-  border-color: var(--sky);
+  background: var(--panel-2);
+  border-color: #64748b;
+}
+
+.close-btn:active,
+.back-btn:active {
+  background: #1a2130;
 }
 
 .robots-head {
@@ -772,16 +772,15 @@ button:disabled {
   gap: 14px;
   padding: 12px 12px 12px 12px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: rgba(10, 14, 23, 0.7);
+  border-radius: var(--r-panel);
+  background: var(--panel);
   text-align: left;
-  transition: background-color 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: background-color 0.15s, border-color 0.15s, transform 0.15s;
 }
 
 .robot-row:hover {
-  border-color: var(--line-strong);
-  background: rgba(11, 61, 145, 0.28);
-  box-shadow: 0 0 22px rgba(37, 99, 235, 0.14);
+  border-color: rgba(37, 99, 235, 0.6);
+  background: var(--panel-2);
 }
 
 .robot-row:active {
@@ -793,8 +792,12 @@ button:disabled {
 }
 
 .row-chevron {
+  color: var(--muted);
+  transition: translate 0.15s, color 0.15s;
+}
+
+.robot-row:hover .row-chevron {
   color: var(--sky);
-  transition: translate 0.15s;
 }
 
 .robot-row:hover .row-chevron {
@@ -854,13 +857,11 @@ dialog.sheet {
   max-width: none;
   max-height: none;
   color: var(--text);
-  background: rgba(10, 14, 23, 0.94);
-  backdrop-filter: blur(14px);
+  background: var(--panel);
 }
 
 dialog.sheet::backdrop {
-  background: rgba(1, 2, 4, 0.7);
-  backdrop-filter: blur(2px);
+  background: rgba(1, 2, 4, 0.74);
 }
 
 .sheet-body {
@@ -873,7 +874,7 @@ dialog.sheet::backdrop {
   inset: 0 0 0 auto;
   width: min(560px, 94vw);
   height: 100dvh;
-  border-left: 1px solid var(--line-strong);
+  border-left: 1px solid #2a3343;
   animation: sheet-side 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
@@ -902,7 +903,7 @@ dialog.sheet::backdrop {
   top: 0;
   z-index: 2;
   padding: 14px 0 14px;
-  background: rgba(10, 14, 23, 0.96);
+  background: var(--panel);
   border-bottom: 1px solid var(--line);
 }
 
@@ -911,10 +912,8 @@ dialog.sheet::backdrop {
 }
 
 .detail-type {
-  font-size: 13px;
-  color: var(--sky);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 14px;
+  color: var(--muted);
 }
 
 .detail-head h2 {

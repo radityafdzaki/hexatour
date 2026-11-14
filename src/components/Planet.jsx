@@ -370,7 +370,8 @@ export default function Planet({ body, label, active, mode, paused, now, overlay
           labels={overlay.labels}
           rocks={['mars', 'jupiter'].includes(body.id)}
           onPick={onPick}
-          rx={body.rings ? 128 : 78}
+          // Narrower orbits on phones so robots stay clear of the stop dots on the right edge.
+          rx={body.rings ? 128 : window.matchMedia('(max-width: 767px)').matches ? 60 : 78}
         />
       )}
       {overlay.labels && (

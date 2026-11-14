@@ -143,9 +143,7 @@ function Telemetry({ robot, paused }) {
   return (
     <section className="learn-box">
       <div className="learn-box-head">
-        <h3>Technical brief</h3>
-        <span className="learn-chip">Commander</span>
-      </div>
+        <h3>Technical brief</h3>      </div>
       <p className="story story--tech">{ROBOT_TEXT[robot.id]?.commander}</p>
       <dl className="telemetry">
         <div>
@@ -158,11 +156,11 @@ function Telemetry({ robot, paused }) {
         </div>
         <div>
           <dt>Days since launch</dt>
-          <dd>{days ? whole.format(days) : '—'}</dd>
+          <dd>{days ? whole.format(days) : 'Not known'}</dd>
         </div>
         <div>
           <dt>{robot.status.state === 'active' ? 'Operating for' : 'Operated for'}</dt>
-          <dd>{years ? `${years.toFixed(1)} years` : '—'}</dd>
+          <dd>{years ? `${years.toFixed(1)} years` : 'Not known'}</dd>
         </div>
       </dl>
     </section>

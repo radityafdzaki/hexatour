@@ -109,27 +109,32 @@ export function buildLabel(text) {
   const ctx = c.getContext('2d');
   const font = '600 30px "IBM Plex Sans", system-ui, sans-serif';
   ctx.font = font;
-  const w = Math.ceil(ctx.measureText(text).width) + 28;
+  const w = Math.ceil(ctx.measureText(text).width) + 16;
   c.width = w;
   c.height = 46;
-  ctx.font = font;
-  ctx.fillStyle = 'rgba(3, 5, 8, 0.78)';
-  ctx.strokeStyle = 'rgba(37, 99, 235, 0.9)';
+  // A callout like the 2D labels: plain text on a short leader line,
+  // outlined in black so it reads over stars and planet alike.
+  ctx.strokeStyle = '#64748b';
   ctx.lineWidth = 2;
-  const r = 20;
   ctx.beginPath();
-  ctx.roundRect(1, 1, w - 2, 44, r);
-  ctx.fill();
+  ctx.moveTo(w / 2, 46);
+  ctx.lineTo(w / 2, 36);
   ctx.stroke();
-  ctx.fillStyle = '#ffffff';
+  ctx.font = font;
+  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(text, 14, 24);
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.85)';
+  ctx.strokeText(text, w / 2, 18);
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillText(text, w / 2, 18);
   const tex = new CanvasTexture(c);
   tex.colorSpace = SRGBColorSpace;
   const s = new Sprite(new SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
   const h = 0.075;
   s.scale.set((h * w) / 46, h, 1);
-  s.center.set(0.5, -0.6);
+  s.center.set(0.5, -0.3);
   s.renderOrder = 20;
   return s;
 }

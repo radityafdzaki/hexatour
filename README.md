@@ -30,6 +30,7 @@ To publish a new version, run `npm run deploy`. It builds the site and pushes `d
 | Venus, Mars, Jupiter, Saturn and Neptune maps | NASA 3D Resources, https://github.com/nasa/NASA-3D-Resources |
 | Moon and Mercury maps | NASA Solar System Treks, https://trek.nasa.gov/ |
 | Distances of the deep-space craft | NASA/JPL Horizons, https://ssd.jpl.nasa.gov/horizons/ |
+| Planet size, mass, gravity, distance, orbit and day length | NASA planetary fact sheets, https://nssdc.gsfc.nasa.gov/planetary/factsheet/ |
 
 Each robot page links to its own NASA source pages.
 

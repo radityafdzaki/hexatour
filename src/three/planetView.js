@@ -212,6 +212,21 @@ function buildThinRings() {
     m.rotation.x = -Math.PI / 2;
     g.add(m);
   });
+  // A scatter of brighter clumps in the outer (epsilon) ring, so its slow
+  // turning can be seen.
+  const rnd = seeded(41);
+  const n = 260;
+  const pts = new Float32Array(n * 3);
+  for (let i = 0; i < n; i += 1) {
+    const a = rnd() * Math.PI * 2;
+    const r = 2.0 + rnd() * 0.025;
+    pts[i * 3] = Math.cos(a) * r;
+    pts[i * 3 + 1] = 0;
+    pts[i * 3 + 2] = Math.sin(a) * r;
+  }
+  const pg = new BufferGeometry();
+  pg.setAttribute('position', new Float32BufferAttribute(pts, 3));
+  g.add(new Points(pg, new PointsMaterial({ color: 0xc7d0dc, size: 0.014, transparent: true, opacity: 0.7, depthWrite: false })));
   return g;
 }
 
@@ -380,6 +395,7 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
   let spinner;
   let atmosphere;
   let ringParts;
+  let thinRings;
   const pickables = [];
 
   if (body.deep) {
@@ -410,7 +426,10 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
       ringParts = buildRings();
       axis.add(ringParts.mesh, ringParts.sparkle);
     }
-    if (body.id === 'uranus') axis.add(buildThinRings());
+    if (body.id === 'uranus') {
+      thinRings = buildThinRings();
+      axis.add(thinRings);
+    }
     axis.rotation.z = -body.tilt;
     view.rotation.x = body.rings ? 0.32 : 0.14;
   }
@@ -435,7 +454,7 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
   scene.add(highlight);
 
   // A mount that was cancelled while its texture loaded must not take the canvas.
-  if (options.isCancelled && options.isCancelled()) return { dispose() {}, setPaused() {}, setOverlay() {} };
+  if (options.isCancelled && options.isCancelled()) return { dispose() {}, setPaused() {}, setOverlay() {}, setInspect() {} };
   const token = {};
   owner = token;
   host.appendChild(canvas);
@@ -452,6 +471,7 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
   let selected = null;
   let planetScale = 1;
   let overlay = { orbits: true, belt: true, atmosphere: true, labels: true, ...(options.overlay || {}) };
+  let inspect = false;
 
   const applyOverlay = () => {
     rocks.group.visible = overlay.belt;
@@ -532,7 +552,7 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
       m.scale.setScalar(d.size * (1 + d.hover * 0.9));
       m.material.emissiveIntensity = d.hover * 0.6;
     }
-    robotLayer.update(clock, dt, hovered, selected, camera, overlay);
+    robotLayer.update(clock, dt, hovered, selected, camera, overlay, inspect);
 
     const planetTarget = hovered && hovered.userData.kind === 'planet' ? 1.04 : 1;
     planetScale += (planetTarget - planetScale) * Math.min(1, dt * 8);
@@ -542,6 +562,8 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
       ringParts.material.uniforms.planetR.value = planetScale;
       ringParts.sparkle.rotation.y += moving ? dt * 0.05 : 0;
     }
+    // Uranus's narrow rings turn slowly around its sideways equator.
+    if (thinRings && moving) thinRings.rotation.y += dt * 0.04;
 
     if (selected) {
       const p = new Vector3();
@@ -635,6 +657,10 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
   return {
     setPaused(next) {
       paused = next;
+      wake();
+    },
+    setInspect(next) {
+      inspect = next;
       wake();
     },
     setOverlay(next) {

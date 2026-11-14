@@ -11,6 +11,7 @@ import {
   Float32BufferAttribute,
   Group,
   LatheGeometry,
+  Line,
   LineBasicMaterial,
   LineLoop,
   Mesh,
@@ -202,7 +203,15 @@ export function createRobotLayer({ robots, spinner, system, envMap }) {
         obj.userData.line = line;
         orbitIndex += 1;
       } else if (r.place === 'flyby') {
-        obj.userData.flyby = { offset: 1.35 + (flybyIndex % 3) * 0.2, phase: flybyIndex * 0.37, tilt: (flybyIndex % 2 ? -1 : 1) * 0.35 };
+        const f = { offset: 1.35 + (flybyIndex % 3) * 0.2, phase: flybyIndex * 0.37, tilt: (flybyIndex % 2 ? -1 : 1) * 0.35 };
+        obj.userData.flyby = f;
+        // The straight pass the flyby follows, for Inspect Orbit Path.
+        const yAt = (x) => Math.sin(f.tilt) * f.offset * 0.4 - x * 0.08;
+        const g = new BufferGeometry();
+        g.setAttribute('position', new Float32BufferAttribute([-3.4, yAt(-3.4), f.offset, 3.4, yAt(3.4), f.offset], 3));
+        const line = new Line(g, new LineBasicMaterial({ color: 0x2563eb, transparent: true, opacity: 0.7, depthWrite: false }));
+        orbitLines.add(line);
+        obj.userData.line = line;
         flybyIndex += 1;
       } else {
         const ang = ((DEEP_ANGLE[r.id] || 0) * Math.PI) / 180;
@@ -227,7 +236,7 @@ export function createRobotLayer({ robots, spinner, system, envMap }) {
   const tmp = new Vector3();
   const camDir = new Vector3();
 
-  function update(clock, dt, hovered, selected, camera, overlay) {
+  function update(clock, dt, hovered, selected, camera, overlay, inspect) {
     for (const obj of items) {
       const d = obj.userData;
       if (d.orbit) {
@@ -261,12 +270,16 @@ export function createRobotLayer({ robots, spinner, system, envMap }) {
         if (d.halo) d.halo.material.opacity = 0.3 + 0.25 * Math.sin(clock * 3 + obj.id);
       } else {
         obj.scale.setScalar(base * (1 + d.hover * 0.5));
-        d.label.visible = overlay.labels;
+        d.label.visible = overlay.labels || Boolean(inspect);
       }
     }
-    // A robot's path shows only while it is pointed at or picked.
+    // A robot's path shows while it is pointed at or picked, or for every
+    // robot when Inspect Orbit Path is on.
     for (const obj of items) {
-      if (obj.userData.line) obj.userData.line.visible = overlay.orbits && (obj === hovered || obj === selected);
+      const line = obj.userData.line;
+      if (!line) continue;
+      line.visible = Boolean(inspect) || (overlay.orbits && (obj === hovered || obj === selected));
+      line.material.opacity = inspect ? 0.85 : 0.45;
     }
   }
 

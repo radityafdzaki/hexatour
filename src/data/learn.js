@@ -1,26 +1,29 @@
-// The three learning ranks. Each rank changes how deep the English goes:
-// Cadet reads short sentences with words to know and a voice guide,
-// Astronaut reads the full mission logs with a word challenge,
-// Commander adds telemetry and comparisons between missions.
+// The three learning ranks. Each rank changes how deep the astronomy goes:
+// Cadet gets basic planet facts, an audio briefing and Fun Space Facts,
+// Astronaut gets planetary science, a mission quiz and orbit paths,
+// Commander gets astrophysics, telemetry tables and instrument specs.
 
 export const LEVELS = [
   {
     id: 'cadet',
     rank: 'Level 1',
     name: 'Cadet',
-    text: 'Begin your space flight with clear storytelling, essential cosmic words, and voice guides.',
+    focus: 'Basic Space Exploration',
+    text: 'Fun planet facts, size comparisons with Earth, and an audio briefing for every world.',
   },
   {
     id: 'astronaut',
     rank: 'Level 2',
     name: 'Astronaut',
-    text: 'Explore active missions through engaging science logs and interactive word challenges.',
+    focus: 'Planetary Science & Missions',
+    text: 'Craters, magnetic fields, elliptical orbits and mission goals, with a quiz and orbit paths.',
   },
   {
     id: 'commander',
     rank: 'Level 3',
     name: 'Commander',
-    text: 'Decode deep-space research, complex telemetry reports, and cross-mission analysis.',
+    focus: 'Astrophysics & Telemetry Data',
+    text: 'Core composition, spin-orbit resonance, gravity and instrument specs in telemetry tables.',
   },
 ];
 

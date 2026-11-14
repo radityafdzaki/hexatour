@@ -143,7 +143,9 @@ export default function TopBar({ mode, onMode, paused, onPause, level, onLevel, 
                       <RankIcon level={l.id} width={24} height={24} />
                     </span>
                     <span className="rank-text">
-                      <span className="rank-level">{l.rank}</span>
+                      <span className="rank-level">
+                        {l.rank} · {l.focus}
+                      </span>
                       <span className="rank-name">{l.name}</span>
                       <span className="rank-desc">{l.text}</span>
                     </span>

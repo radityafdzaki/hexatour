@@ -28,7 +28,7 @@ The project name is HEXATOUR, from the team's presentation. There is no logo, on
 - **Globe shading gradient.** The only gradient on the page. It shades the flat map so the disc reads as
   a sphere lit from the upper left. The 3D view uses the same light direction.
 - **Depth, calmly.** Stars drift in ultra slow motion with a gentle shimmer, dimmer behind the text in the middle. Each world shows only its real robots: orbiters circle it, flybys pass once, landers and rovers glow at their landing sites. Rings appear only on Saturn and Uranus; asteroids appear only near the belt (Mars, Jupiter) and in deep space.
-- **Three ranks that change the page.** Cadet: a short story, a big Listen to Story button and three Space Word Cards. Astronaut: a science paragraph with tappable words and a Quick Mission Check. Commander: a two-part technical report, a Telemetry & Technical Comparison table and a Decode & Summarize exercise.
+- **Three ranks of astronomy depth.** Cadet (Basic Space Exploration): a short briefing, an Audio Briefing button and three Fun Space Facts cards (size against Earth drawn to scale, length of a day, robots that visited). Astronaut (Planetary Science & Missions): a science paragraph with tappable terms, Inspect Orbit Path, and a Space Mission Quiz. Commander (Astrophysics & Telemetry Data): a two-part astrophysics report, the Planetary Telemetry & Mission Specs tables from the NASA fact sheets, and a Mission Debrief.
 - **Motion.** Planets turn slowly, slides ease into the center, panels slide in from the edge they are
   attached to. All of it stops with "Pause motion", and starts paused for visitors who ask their system
   for reduced motion.

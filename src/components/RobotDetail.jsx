@@ -5,7 +5,7 @@ import { BODY_BY_ID } from '../data/bodies.js';
 import { useNow } from '../lib/hooks.js';
 import { ROBOT_TEXT, lookup, wordsIn } from '../data/learn.js';
 import { ROBOT_SPEC } from '../data/lessons.js';
-import { CompareTable, ListenButton, MarkedText, OrderChallenge, QuickCheck, WordCards } from './Lessons.jsx';
+import { CompareTable, ListenButton, MarkedText, OrderChallenge, QuickCheck } from './Lessons.jsx';
 import { ArrowLeft, CloseIcon } from './Icons.jsx';
 
 function Photo({ photo }) {
@@ -88,17 +88,35 @@ function Distance({ horizons, paused }) {
   );
 }
 
-// Cadet: the story read aloud, and three picture cards for the key words.
+// Cadet: a short briefing read aloud, and three quick mission facts.
 function StoryTime({ robot }) {
   const story = ROBOT_TEXT[robot.id]?.cadet;
-  const words = wordsIn(`${robot.type} ${story} ${robot.how.join(' ')}`, 3);
+  const kind = wordsIn(robot.type, 1)[0];
+  const statusLine =
+    robot.status.state === 'active' ? 'Still working today' : robot.status.leftOnSite ? 'Finished, and still there' : 'Mission finished';
   return (
     <section className="learn-box">
-      <h3>Story time</h3>
+      <h3>Space briefing</h3>
       <p className="story">{story}</p>
       <ListenButton text={`${robot.name}. ${story}`} />
-      <h3 className="learn-sub">Space Word Cards</h3>
-      <WordCards words={words} />
+      <h3 className="learn-sub">Fun Space Facts</h3>
+      <div className="fun-facts fun-facts--small">
+        <div className="fun-card">
+          <p className="fun-label">What it is</p>
+          <p className="fun-big">{robot.type}</p>
+          <p>{kind ? lookup(kind).kid : ''}</p>
+        </div>
+        <div className="fun-card">
+          <p className="fun-label">Launched</p>
+          <p className="fun-big">{robot.launch.match(/\d{4}/)[0]}</p>
+          <p>{new Date().getFullYear() - +robot.launch.match(/\d{4}/)[0]} years ago</p>
+        </div>
+        <div className="fun-card">
+          <p className="fun-label">Status</p>
+          <p className="fun-big">{robot.status.state === 'active' ? 'Active' : 'Ended'}</p>
+          <p>{statusLine}</p>
+        </div>
+      </div>
     </section>
   );
 }

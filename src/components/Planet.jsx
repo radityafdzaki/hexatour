@@ -65,6 +65,30 @@ const ROCKS = [
   { y: 0.36, speed: 0.012, phase: 0.62, size: 10, points: '-1,-7 6,-5 7,3 1,7 -6,5 -7,-2' },
 ];
 
+// Astronaut "Inspect Orbit Path" in 2D: the same ellipses and lines the
+// robots below travel along. One SVG unit is 1% of the planet's width (cqw).
+function OrbitPaths({ robots, rx, part }) {
+  let oi = 0;
+  let fi = 0;
+  const shapes = [];
+  robots.forEach((r) => {
+    if (r.place === 'orbit') {
+      const a = rx + oi * 14;
+      shapes.push(<ellipse key={r.id} rx={a} ry={a * (0.22 + oi * 0.05)} className="path-orbit" />);
+      oi += 1;
+    } else if (r.place === 'flyby') {
+      const y = 52 + (fi % 3) * 13;
+      if (part === 'front') shapes.push(<line key={r.id} x1="-170" y1={y + 8} x2="170" y2={y - 8} className="path-flyby" />);
+      fi += 1;
+    }
+  });
+  return (
+    <svg className={`orbit-paths orbit-paths--${part}`} viewBox="-200 -200 400 400" aria-hidden="true">
+      {shapes}
+    </svg>
+  );
+}
+
 // The robots of this world in the 2D view: orbiters circle the globe,
 // flybys cross the scene, and rocks drift far behind (belt worlds only).
 function SpaceObjects({ robots, paused, belt, labels, rocks, onPick, rx }) {
@@ -225,7 +249,7 @@ function Beacons({ robots, paused, surfaceRef, labels }) {
   ));
 }
 
-export default function Planet({ body, label, active, mode, paused, now, overlay, picked, onPick, on3dError }) {
+export default function Planet({ body, label, active, mode, paused, now, overlay, picked, inspect, onPick, on3dError }) {
   const hostRef = useRef(null);
   const surfaceRef = useRef(null);
   const [view3d, setView3d] = useState('off'); // off | loading | ready
@@ -294,6 +318,11 @@ export default function Planet({ body, label, active, mode, paused, now, overlay
 
   useEffect(() => {
     const c = hostRef.current && hostRef.current.__planet3d;
+    if (c && view3d === 'ready') c.setInspect(Boolean(inspect));
+  }, [inspect, view3d]);
+
+  useEffect(() => {
+    const c = hostRef.current && hostRef.current.__planet3d;
     if (c && view3d === 'ready' && !picked) c.clearPick();
   }, [picked, view3d]);
 
@@ -330,9 +359,13 @@ export default function Planet({ body, label, active, mode, paused, now, overlay
   const beaconsOn = show2dExtras && surfaceRobots.length > 0;
   if (beaconsOn) classes.push('js-spin');
   const thinRings = body.id === 'uranus';
+  // Narrower orbits on phones so robots stay clear of the stop dots on the right edge.
+  const rx = body.rings ? 128 : window.matchMedia('(max-width: 767px)').matches ? 60 : 78;
+  const showPaths = show2dExtras && inspect;
 
   return (
     <div className={`planet-wrap planet-wrap--${body.id}`} style={{ '--atmo': body.atmo || '#9fb4d8' }}>
+      {showPaths && <OrbitPaths robots={robots} rx={rx} part="back" />}
       <button
         ref={hostRef}
         type="button"
@@ -362,16 +395,16 @@ export default function Planet({ body, label, active, mode, paused, now, overlay
           </span>
         )}
       </button>
+      {showPaths && <OrbitPaths robots={robots} rx={rx} part="front" />}
       {show2dExtras && (
         <SpaceObjects
           robots={robots}
           paused={paused}
           belt={overlay.belt}
-          labels={overlay.labels}
+          labels={overlay.labels || inspect}
           rocks={['mars', 'jupiter'].includes(body.id)}
           onPick={onPick}
-          // Narrower orbits on phones so robots stay clear of the stop dots on the right edge.
-          rx={body.rings ? 128 : window.matchMedia('(max-width: 767px)').matches ? 60 : 78}
+          rx={rx}
         />
       )}
       {overlay.labels && (

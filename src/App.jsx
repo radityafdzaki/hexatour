@@ -59,10 +59,20 @@ export default function App() {
   const [fact, setFact] = useState(null); // { kind, index }
   const [guideOpen, setGuideOpen] = useState(false);
   const [briefOpen, setBriefOpen] = useState(false);
+  // Astronaut "Inspect Orbit Path": highlights the paths of the robots
+  // around the world in view.
+  const [inspect, setInspect] = useState(false);
 
   const chooseLevel = (next) => {
     setLevel(next);
     writeStored('learn-level', next);
+    if (next !== 'astronaut') setInspect(false);
+  };
+  const toggleInspect = () => {
+    setInspect((v) => !v);
+    // On a phone the briefing is a sheet over the planet: close it so the
+    // paths can be seen.
+    setBriefOpen(false);
   };
   const chooseOverlay = (next) => {
     setOverlay(next);
@@ -181,6 +191,7 @@ export default function App() {
 
   useEffect(() => {
     setFact((f) => (f && f.index !== active ? null : f));
+    setInspect(false);
   }, [active]);
 
   // Sliding to another world on desktop closes the robot list of the previous one.
@@ -332,6 +343,7 @@ export default function App() {
                     now={minuteNow}
                     overlay={overlay}
                     picked={fact && fact.index === i ? fact.kind : null}
+                    inspect={inspect && level === 'astronaut' && isActive}
                     onPick={(kind, id) => pickInSpace(i, kind, id)}
                     on3dError={on3dError}
                   />
@@ -357,7 +369,7 @@ export default function App() {
                       </button>
                       {!isDesktop && (
                         <button type="button" className="btn btn--quiet" onClick={() => setBriefOpen(true)}>
-                          {level === 'cadet' ? 'Space Word Cards' : level === 'astronaut' ? 'Science log & quiz' : 'Technical report'}
+                          {level === 'cadet' ? 'Fun Space Facts' : level === 'astronaut' ? 'Planetary science & quiz' : 'Telemetry & mission specs'}
                         </button>
                       )}
                     </div>
@@ -393,7 +405,13 @@ export default function App() {
               <h2 id="briefing-heading">
                 {briefingTitle(level)}: {BODIES[active].name}
               </h2>            </div>
-            <Briefing body={BODIES[active]} level={level} robots={robotsFor(BODIES[active].id)} />
+            <Briefing
+              body={BODIES[active]}
+              level={level}
+              robots={robotsFor(BODIES[active].id)}
+              inspect={inspect}
+              onInspect={toggleInspect}
+            />
           </section>
         )}
 
@@ -471,7 +489,13 @@ export default function App() {
               Close
             </button>
           </div>
-          <Briefing body={BODIES[active]} level={level} robots={robotsFor(BODIES[active].id)} />
+          <Briefing
+            body={BODIES[active]}
+            level={level}
+            robots={robotsFor(BODIES[active].id)}
+            inspect={inspect}
+            onInspect={toggleInspect}
+          />
         </div>
       </Sheet>
 

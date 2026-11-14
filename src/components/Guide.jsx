@@ -23,8 +23,8 @@ export default function Guide({ onClose }) {
       <section>
         <h3>Tap things in space</h3>
         <ul className="plain">
-          <li>Tap a planet, a passing asteroid or the little robot spacecraft to open a fact card.</li>
-          <li>Press the speaker button to hear how a word is said.</li>
+          <li>Tap a planet, a passing asteroid or a robot spacecraft to open a fact card with a key science term.</li>
+          <li>Press a speaker button to hear the term or the briefing read aloud.</li>
           <li>From a planet’s card, open the list of robots that went there, then pick one to read its story.</li>
         </ul>
       </section>
@@ -33,13 +33,16 @@ export default function Guide({ onClose }) {
         <h3>Learn at your rank</h3>
         <ul className="plain">
           <li>
-            <strong>Cadet</strong>: short stories, words to know and a read-aloud voice.
+            <strong>Cadet, Basic Space Exploration</strong>: fun planet facts, an Audio Briefing, and Fun Space Facts
+            cards comparing each world with Earth.
           </li>
           <li>
-            <strong>Astronaut</strong>: full mission logs and a word challenge on each robot page.
+            <strong>Astronaut, Planetary Science &amp; Missions</strong>: craters, magnetic fields, orbits and
+            mission goals, a Space Mission Quiz, and Inspect Orbit Path to show where each robot travels.
           </li>
           <li>
-            <strong>Commander</strong>: technical briefs, a telemetry report and a comparison with other missions.
+            <strong>Commander, Astrophysics &amp; Telemetry Data</strong>: an astrophysics report, the Planetary
+            Telemetry &amp; Mission Specs tables, and a Mission Debrief.
           </li>
         </ul>
       </section>
@@ -79,6 +82,10 @@ export default function Guide({ onClose }) {
           and{' '}
           <a href="https://trek.nasa.gov/" target="_blank" rel="noreferrer">
             NASA Solar System Treks
+          </a>
+          . Planet sizes, masses, gravity and orbits come from the{' '}
+          <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/" target="_blank" rel="noreferrer">
+            NASA planetary fact sheets
           </a>
           . Spacecraft distances come from{' '}
           <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noreferrer">

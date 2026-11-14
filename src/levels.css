@@ -555,7 +555,135 @@
   width: 190%;
 }
 
+/* ---------- Cadet: Fun Space Facts ----------
+   Three equal cards: size, day length and robots weigh the same. */
+
+.fun-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+}
+
+.fun-card {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
+  background: var(--panel);
+}
+
+.fun-card p:last-child {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.fun-art {
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+  margin-bottom: 6px;
+}
+
+.fun-art text {
+  fill: var(--muted);
+  font-family: var(--body);
+  font-size: 8px;
+}
+
+.fun-big {
+  font-family: var(--display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.fun-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.fun-facts--small .fun-big {
+  font-size: 18px;
+}
+
+.detail .fun-facts {
+  margin-top: 4px;
+}
+
+/* ---------- Astronaut: Inspect Orbit Path ---------- */
+
+.inspect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.inspect-btn[aria-pressed='true'] {
+  border-color: var(--cobalt-hi);
+  background: var(--cobalt);
+}
+
+.orbit-paths {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 400cqw;
+  height: 400cqw;
+  translate: -50% -50%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.orbit-paths--back {
+  z-index: 0;
+  clip-path: inset(0 0 50% 0);
+}
+
+.orbit-paths--front {
+  z-index: 5;
+  clip-path: inset(50% 0 0 0);
+}
+
+.path-orbit,
+.path-flyby {
+  fill: none;
+  stroke: var(--cobalt-hi);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ---------- Commander: telemetry ---------- */
+
+.widget-sub {
+  margin: 18px 0 6px;
+  font-family: var(--display);
+  font-stretch: 112%;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.telemetry-table td:nth-child(2) {
+  color: #fff;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.telemetry-table td:nth-child(3) {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 767px) {
+  .fun-facts {
+    grid-template-columns: 1fr;
+  }
+
   .slide-actions {
     flex-direction: column;
     align-items: stretch;

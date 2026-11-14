@@ -57,8 +57,8 @@ export default function FactCard({ fact, level, robots, onClose, onSeeRobots, on
     title = 'Asteroid';
     word = 'asteroid';
     text = ASTEROID_FACT[level];
-  } else if (kind === 'craft') {
-    const robot = featuredRobot(robots);
+  } else if (kind === 'robot' || kind === 'craft') {
+    const robot = robots.find((r) => r.id === fact.id) || featuredRobot(robots);
     eyebrow = `Robot explorer · ${robot.type}`;
     title = robot.name;
     word = wordsIn(robot.type, 1)[0] || 'spacecraft';

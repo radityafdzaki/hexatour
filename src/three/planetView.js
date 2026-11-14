@@ -35,7 +35,10 @@ import {
   Vector3,
   WebGLRenderer,
 } from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { PMREMGenerator } from 'three';
 import { ringCanvas } from '../lib/drawn.js';
+import { createRobotLayer } from './robots3d.js';
 
 // The canvas is 2.4 times the planet's width so rings and orbits fit.
 const VIEW_HALF = 2.4;
@@ -200,6 +203,18 @@ function buildRings() {
   return { mesh, sparkle, material: mat };
 }
 
+// Uranus: thin, dark, narrow rings.
+function buildThinRings() {
+  const g = new Group();
+  [1.64, 1.68, 1.72, 1.78, 2.0].forEach((r, i) => {
+    const w = i === 4 ? 0.025 : 0.008;
+    const m = new Mesh(new RingGeometry(r, r + w, 160, 1), new MeshBasicMaterial({ color: 0x9aa4b2, transparent: true, opacity: i === 4 ? 0.45 : 0.3, side: DoubleSide, depthWrite: false }));
+    m.rotation.x = -Math.PI / 2;
+    g.add(m);
+  });
+  return g;
+}
+
 // ---------- Rocks: low-poly, irregular, each spinning on its own axis ----------
 
 function rockGeometry(seed) {
@@ -248,48 +263,6 @@ function buildAsteroids(count, minR, maxR, icy, seed) {
     items.push(mesh);
   }
   return { group, items };
-}
-
-function placeOnOrbit(m, t) {
-  const d = m.userData;
-  const speed = 0.22 / Math.pow(d.a, 1.5);
-  const ang = d.phase + t * speed;
-  const b = d.a * Math.sqrt(1 - d.e * d.e);
-  m.position.set(Math.cos(ang) * d.a - d.a * d.e, Math.sin(ang * 2.0 + d.phase) * d.incl, Math.sin(ang) * b);
-}
-
-function orbitLine(a, e, color, opacity) {
-  const pts = [];
-  const b = a * Math.sqrt(1 - e * e);
-  for (let i = 0; i < 128; i += 1) {
-    const ang = (i / 128) * Math.PI * 2;
-    pts.push(Math.cos(ang) * a - a * e, 0, Math.sin(ang) * b);
-  }
-  const g = new BufferGeometry();
-  g.setAttribute('position', new Float32BufferAttribute(pts, 3));
-  const line = new LineLoop(g, new LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false }));
-  line.userData.kind = 'orbit';
-  return line;
-}
-
-// ---------- A small robot spacecraft: bus, foil, two solar wings, dish ----------
-
-function buildCraft() {
-  const g = new Group();
-  const body = new Mesh(new BoxGeometry(0.06, 0.05, 0.05), new MeshStandardMaterial({ color: 0xd9dde6, roughness: 0.4, metalness: 0.6, emissive: 0x1e90ff, emissiveIntensity: 0 }));
-  const panelMat = new MeshStandardMaterial({ color: 0x1b3f8f, roughness: 0.35, metalness: 0.5, emissive: 0x0b3d91, emissiveIntensity: 0.25, side: DoubleSide });
-  const left = new Mesh(new PlaneGeometry(0.12, 0.045), panelMat);
-  left.position.x = -0.1;
-  const right = left.clone();
-  right.position.x = 0.1;
-  const dish = new Mesh(new CylinderGeometry(0.035, 0.01, 0.015, 20), new MeshStandardMaterial({ color: 0xf2f4f8, roughness: 0.3, metalness: 0.4 }));
-  dish.position.y = 0.035;
-  g.add(body, left, right, dish);
-  g.traverse((o) => {
-    o.userData.kind = 'craft';
-  });
-  g.userData = { kind: 'craft', a: 1.5, e: 0.05, phase: 0.6, incl: 0.25, hover: 0 };
-  return g;
 }
 
 // ---------- A highlight ring that faces the camera ----------
@@ -396,6 +369,10 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
   view.add(axis, system);
   scene.add(view);
 
+  const pmrem = new PMREMGenerator(gl);
+  const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  pmrem.dispose();
+
   const sun = new DirectionalLight(0xffffff, 3.4);
   sun.position.copy(SUN_DIR).multiplyScalar(6);
   scene.add(sun, new AmbientLight(0x6f86b8, 0.06), new HemisphereLight(0x9cc4ff, 0x05070d, 0.08));
@@ -420,6 +397,7 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
       metalness: 0,
       bumpMap: rocky ? map : null,
       bumpScale: rocky ? 2.2 : 0,
+      envMapIntensity: 0,
     });
     spinner = new Mesh(new SphereGeometry(1, 96, 64), mat);
     spinner.userData.kind = 'planet';
@@ -432,29 +410,26 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
       ringParts = buildRings();
       axis.add(ringParts.mesh, ringParts.sparkle);
     }
-    axis.rotation.z = -Math.min(body.tilt, 0.5);
+    if (body.id === 'uranus') axis.add(buildThinRings());
+    axis.rotation.z = -body.tilt;
     view.rotation.x = body.rings ? 0.32 : 0.14;
   }
 
-  // Rocks and a robot on their own orbits around the world.
-  const rockRange = body.rings ? [2.0, 2.3] : body.deep ? [1.5, 2.25] : [1.45, 2.2];
-  const rocks = buildAsteroids(body.rings ? 10 : body.deep ? 34 : 26, rockRange[0], rockRange[1], body.deep, body.id.length * 31);
+  // Rocks only where they really are: the asteroid belt between Mars and
+  // Jupiter, and icy Kuiper Belt objects in deep space. They drift far
+  // behind the planet instead of circling it.
+  const beltWorld = ['mars', 'jupiter'].includes(body.id);
+  const rocks = buildAsteroids(beltWorld ? 7 : body.deep ? 9 : 0, 2.1, 2.5, body.deep, body.id.length * 31);
   system.add(rocks.group);
-  rocks.items.forEach((m) => pickables.push(m));
+  rocks.items.forEach((m) => {
+    m.userData.drift = true;
+    pickables.push(m);
+  });
   system.rotation.x = 0.08;
   system.rotation.z = 0.12;
 
-  const craft = buildCraft();
-  if (body.deep) {
-    craft.userData.a = 1.15;
-    craft.userData.e = 0.3;
-  }
-  system.add(craft);
-  craft.traverse((o) => o.isMesh && pickables.push(o));
-
-  const orbits = new Group();
-  orbits.add(orbitLine(rockRange[0], 0.08, 0x60a5fa, 0.22), orbitLine(rockRange[1], 0.1, 0x60a5fa, 0.16), orbitLine(craft.userData.a, craft.userData.e, 0xffffff, 0.3));
-  system.add(orbits);
+  const robotLayer = createRobotLayer({ robots: options.robots || [], spinner, system, view, envMap: envTex });
+  robotLayer.pickables.forEach((m) => pickables.push(m));
 
   const highlight = buildHighlight();
   scene.add(highlight);
@@ -476,10 +451,9 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
   let hovered = null;
   let selected = null;
   let planetScale = 1;
-  let overlay = { orbits: true, belt: true, atmosphere: true, ...(options.overlay || {}) };
+  let overlay = { orbits: true, belt: true, atmosphere: true, labels: true, ...(options.overlay || {}) };
 
   const applyOverlay = () => {
-    orbits.visible = overlay.orbits;
     rocks.group.visible = overlay.belt;
     if (atmosphere) atmosphere.visible = overlay.atmosphere;
     if (selected && selected.userData.kind === 'asteroid' && !overlay.belt) selected = null;
@@ -526,9 +500,8 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
       }
       return best;
     }
-    let o = hits[0].object;
-    if (o.userData.kind === 'craft') o = craft;
-    return o;
+    const o = hits[0].object;
+    return o.userData.root || o;
   }
 
   function tick(t) {
@@ -548,7 +521,10 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
     camera.lookAt(0, 0, 0);
 
     for (const m of rocks.items) {
-      placeOnOrbit(m, clock);
+      // Slow drift far behind the planet, wrapping around.
+      const dd = m.userData;
+      const x = ((dd.phase / (Math.PI * 2)) * 6 + clock * 0.03 * (1 + dd.e * 4)) % 6 - 3;
+      m.position.set(x, (dd.a - 2.3) * 3 + dd.incl * 4, -1.6 - dd.e * 4);
       const d = m.userData;
       if (moving) m.rotateOnAxis(d.spin, dt * d.spinSpeed);
       const target = m === hovered || m === selected ? 1 : 0;
@@ -556,11 +532,7 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
       m.scale.setScalar(d.size * (1 + d.hover * 0.9));
       m.material.emissiveIntensity = d.hover * 0.6;
     }
-    placeOnOrbit(craft, clock * 1.6);
-    craft.lookAt(0, 0, 0);
-    const ct = craft === hovered || craft === selected ? 1 : 0;
-    craft.userData.hover += (ct - craft.userData.hover) * Math.min(1, dt * 10);
-    craft.scale.setScalar(1 + craft.userData.hover * 0.6);
+    robotLayer.update(clock, dt, hovered, selected, camera, overlay);
 
     const planetTarget = hovered && hovered.userData.kind === 'planet' ? 1.04 : 1;
     planetScale += (planetTarget - planetScale) * Math.min(1, dt * 8);
@@ -579,7 +551,7 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
         s = body.deep ? 0.32 : 1.22 * planetScale;
       } else {
         selected.getWorldPosition(p);
-        s = selected === craft ? 0.22 : selected.userData.size * 3.2;
+        s = selected.userData.robotId ? (selected.userData.place === 'surface' ? 0.12 : 0.24) : selected.userData.size * 3.2;
       }
       highlight.position.copy(p);
       highlight.scale.set(s, s, 1);
@@ -670,13 +642,14 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
       applyOverlay();
       wake();
     },
-    // What sits under a click: 'planet', 'asteroid', 'craft' or null.
+    // What sits under a click: { kind: 'planet' | 'asteroid' | 'robot', id } or null.
     pick(clientX, clientY) {
       const h = hit(clientX, clientY);
       selected = h;
       wake();
       if (!h) return null;
-      return h.userData.kind;
+      if (h.userData.robotId) return { kind: 'robot', id: h.userData.robotId };
+      return { kind: h.userData.kind };
     },
     clearPick() {
       selected = null;
@@ -698,11 +671,13 @@ export async function mountPlanet(host, body, textureUrl, options = {}) {
         if (canvas.parentNode === host) host.removeChild(canvas);
       }
       delete host.__planet3d;
+      envTex.dispose();
       scene.traverse((o) => {
         if (o.geometry) o.geometry.dispose();
         if (o.material) {
           if (o.material.map) o.material.map.dispose();
           if (o.material.uniforms && o.material.uniforms.map) o.material.uniforms.map.value.dispose();
+          if (o.material.map && o.isSprite) o.material.map.dispose();
           o.material.dispose();
         }
       });

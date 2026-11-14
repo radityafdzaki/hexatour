@@ -10,6 +10,8 @@ import TopBar from './components/TopBar.jsx';
 import Starfield from './components/Starfield.jsx';
 import FactCard from './components/FactCard.jsx';
 import Guide from './components/Guide.jsx';
+import { Briefing, ListenButton, briefingTitle } from './components/Lessons.jsx';
+import { BODY_LEARN } from './data/lessons.js';
 import { BODY_TEXT, LEVEL_BY_ID } from './data/learn.js';
 
 const OVERLAY_DEFAULT = { orbits: true, belt: true, labels: true, atmosphere: true };
@@ -56,6 +58,7 @@ export default function App() {
   const [overlay, setOverlay] = useState(readOverlay);
   const [fact, setFact] = useState(null); // { kind, index }
   const [guideOpen, setGuideOpen] = useState(false);
+  const [briefOpen, setBriefOpen] = useState(false);
 
   const chooseLevel = (next) => {
     setLevel(next);
@@ -240,9 +243,9 @@ export default function App() {
     }
   };
 
-  const pickInSpace = (index, kind) => {
+  const pickInSpace = (index, kind, id) => {
     if (index !== activeRef.current) goTo(index);
-    setFact({ kind, index });
+    setFact({ kind, index, id });
   };
   const factBody = fact ? BODIES[fact.index] : null;
   const factRobots = useMemo(() => (factBody ? robotsFor(factBody.id) : []), [factBody]);
@@ -321,7 +324,7 @@ export default function App() {
                     now={minuteNow}
                     overlay={overlay}
                     picked={fact && fact.index === i ? fact.kind : null}
-                    onPick={(kind) => pickInSpace(i, kind)}
+                    onPick={(kind, id) => pickInSpace(i, kind, id)}
                     on3dError={on3dError}
                   />
                   <div className="slide-copy">
@@ -330,16 +333,26 @@ export default function App() {
                     </p>
                     <h2>{body.name}</h2>
                     <p className="slide-order">{body.order}</p>
-                    <p className="slide-blurb">{level === 'astronaut' ? body.blurb : BODY_TEXT[body.id][level]}</p>
+                    <p className={`slide-blurb slide-blurb--${level}`}>
+                      {level === 'cadet' ? BODY_LEARN[body.id].cadet.story : level === 'astronaut' ? body.blurb : BODY_TEXT[body.id].commander}
+                    </p>
+                    {level === 'cadet' && isActive && <ListenButton text={`${body.name}. ${BODY_LEARN[body.id].cadet.story}`} />}
                     {body.deep && (
                       <p className="slide-key">
                         Inner ring: the orbit of Neptune. Dashed ring: the edge of the Sun's bubble, about 120 au out.
                         Spacing is logarithmic.
                       </p>
                     )}
-                    <button type="button" className="btn btn--main" onClick={() => openBody(i)}>
-                      {label}
-                    </button>
+                    <div className="slide-actions">
+                      <button type="button" className="btn btn--main" onClick={() => openBody(i)}>
+                        {label}
+                      </button>
+                      {!isDesktop && (
+                        <button type="button" className="btn btn--quiet" onClick={() => setBriefOpen(true)}>
+                          {level === 'cadet' ? 'Space Word Cards' : level === 'astronaut' ? 'Science log & quiz' : 'Technical report'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </article>
               );
@@ -367,6 +380,18 @@ export default function App() {
         </section>
 
         {isDesktop && (
+          <section className="briefing-inline" aria-labelledby="briefing-heading">
+            <div className="briefing-title">
+              <h2 id="briefing-heading">
+                {briefingTitle(level)}: {BODIES[active].name}
+              </h2>
+              <span className="learn-chip">{LEVEL_BY_ID[level].name}</span>
+            </div>
+            <Briefing body={BODIES[active]} level={level} robots={robotsFor(BODIES[active].id)} />
+          </section>
+        )}
+
+        {isDesktop && (
           <section className="robots-inline" aria-live="polite">
             {selected ? (
               <RobotList
@@ -385,7 +410,7 @@ export default function App() {
 
       {fact && factBody && (
         <FactCard
-          fact={{ kind: fact.kind, body: factBody }}
+          fact={{ kind: fact.kind, body: factBody, id: fact.id }}
           level={level}
           robots={factRobots}
           onClose={() => setFact(null)}
@@ -428,6 +453,20 @@ export default function App() {
             paused={paused}
           />
         )}
+      </Sheet>
+
+      <Sheet open={!isDesktop && briefOpen} onClose={() => setBriefOpen(false)} variant="list" labelledBy="briefing-sheet-heading">
+        <div className="robots">
+          <div className="robots-title">
+            <h2 id="briefing-sheet-heading">
+              {briefingTitle(level)}: {BODIES[active].name}
+            </h2>
+            <button type="button" className="close-btn" onClick={() => setBriefOpen(false)}>
+              Close
+            </button>
+          </div>
+          <Briefing body={BODIES[active]} level={level} robots={robotsFor(BODIES[active].id)} />
+        </div>
       </Sheet>
 
       <Sheet open={guideOpen} onClose={() => setGuideOpen(false)} variant="detail" labelledBy="guide-title">

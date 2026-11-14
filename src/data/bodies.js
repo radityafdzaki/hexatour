@@ -86,7 +86,7 @@ export const BODIES = [
     blurb: 'Visited once, for a few hours, in January 1986.',
     texture: null,
     drawn: 'uranus',
-    tilt: 1.4,
+    tilt: 1.71,
     color: '#9fd3d6',
     surfaceCredit: 'Drawn surface. Voyager 2 saw an almost featureless blue-green globe.',
   },

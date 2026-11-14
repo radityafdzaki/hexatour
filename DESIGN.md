@@ -9,7 +9,7 @@ The project name is HEXATOUR, from the team's presentation. There is no logo, on
 
 - **Dark theme, no light toggle.** The subject is planets photographed against space. A white page would
   fight every image on it.
-- **NASA blue, white and black.** Deep Space Black (#050811) behind everything, NASA Cobalt (#0B3D91) for the main action and the chosen rank, Electric Blue (#1E90FF) for glows and switches, Soft Sky Blue (#60A5FA) for links and highlighted text, white for type. No yellow or orange in the interface.
+- **Space black first, NASA blue as the accent.** Page #030508, panels #0A0E17. NASA blue (#0B3D91, #2563EB) only on the main buttons, active states, icons and thin borders. Text is white (#FFFFFF) and light grey (#CBD5E1); small blue text uses a lighter tint of #2563EB so it stays legible on black.
 - **Dark glass top bar.** Logo, Visual Overlay and Learn on the left; 2D/3D, pause and the ⋮ menu (User Guide, Report a Bug) on the right. Credits moved from the footer into the User Guide.
 - **Status in blue, white and grey.** Active is blue, Ended is grey, Left on site is white. Each status also has its own shape and word, so it never depends on color.
 - **Archivo, set wide, for headings.** Wide grotesque lettering echoes the lettering painted on NASA
@@ -20,7 +20,8 @@ The project name is HEXATOUR, from the team's presentation. There is no logo, on
   keep the status labels in one column.
 - **Globe shading gradient.** The only gradient on the page. It shades the flat map so the disc reads as
   a sphere lit from the upper left. The 3D view uses the same light direction.
-- **Depth.** A layered starfield drifts toward the viewer and shifts with the pointer and scroll. Rocks and a robot orbit every world and can be tapped for a fact card with a spoken word. The 3D view adds a day-night terminator, an atmosphere rim and Saturn's rings with the Cassini Division and the planet's shadow.
+- **Depth, calmly.** Stars drift in ultra slow motion with a gentle shimmer, dimmer behind the text in the middle. Each world shows only its real robots: orbiters circle it, flybys pass once, landers and rovers glow at their landing sites. Rings appear only on Saturn and Uranus; asteroids appear only near the belt (Mars, Jupiter) and in deep space.
+- **Three ranks that change the page.** Cadet: a short story, a big Listen to Story button and three Space Word Cards. Astronaut: a science paragraph with tappable words and a Quick Mission Check. Commander: a two-part technical report, a Telemetry & Technical Comparison table and a Decode & Summarize exercise.
 - **Motion.** Planets turn slowly, slides ease into the center, panels slide in from the edge they are
   attached to. All of it stops with "Pause motion", and starts paused for visitors who ask their system
   for reduced motion.

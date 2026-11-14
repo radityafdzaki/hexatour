@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import DeepSpaceMap from './DeepSpaceMap.jsx';
 import { uranusTexture } from '../lib/drawn.js';
+import { distanceNow, robotsFor } from '../data/robots.js';
+import { SITES, placement, shortName } from '../data/orbits.js';
 
 export function textureUrl(body) {
   if (body.texture) return `${import.meta.env.BASE_URL}${body.texture}`;
@@ -8,9 +10,19 @@ export function textureUrl(body) {
   return null;
 }
 
-function Rings({ part }) {
+function Rings({ part, thin }) {
   // Drawn twice: the far half sits behind the globe, the near half in front.
-  // The dark band between B and A is the Cassini Division.
+  if (thin) {
+    // Uranus: a few narrow, dark rings.
+    return (
+      <svg className={`rings rings--thin rings--${part}`} viewBox="-120 -40 240 80" aria-hidden="true">
+        <ellipse rx="86" ry="23" className="ring ring--thin" />
+        <ellipse rx="80" ry="21.4" className="ring ring--thin" />
+        <ellipse rx="76" ry="20.3" className="ring ring--thin" />
+      </svg>
+    );
+  }
+  // Saturn. The dark band between B and A is the Cassini Division.
   return (
     <svg className={`rings rings--${part}`} viewBox="-120 -40 240 80" aria-hidden="true">
       <ellipse rx="112" ry="30" className="ring ring--a" />
@@ -21,42 +33,81 @@ function Rings({ part }) {
   );
 }
 
-function OrbitPath({ part }) {
+function CraftIcon() {
+  // Solar wings with cells, a foil bus, and a parabolic dish.
   return (
-    <svg className={`orbit-path orbit-path--${part}`} viewBox="-100 -30 200 60" aria-hidden="true">
-      <ellipse rx="96" ry="22" />
+    <svg viewBox="-16 -10 32 20" width="30" height="19" aria-hidden="true">
+      <defs>
+        <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#f2d58b" />
+          <stop offset="0.5" stopColor="#b98d3d" />
+          <stop offset="1" stopColor="#6b4f1f" />
+        </linearGradient>
+        <linearGradient id="cell" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#3b6fd8" />
+          <stop offset="1" stopColor="#0b1f4d" />
+        </linearGradient>
+      </defs>
+      <rect x="-15" y="-2.5" width="9" height="5" fill="url(#cell)" stroke="#cbd5e1" strokeWidth="0.4" />
+      <rect x="6" y="-2.5" width="9" height="5" fill="url(#cell)" stroke="#cbd5e1" strokeWidth="0.4" />
+      <path d="M-12 -2.5v5M-9 -2.5v5M9 -2.5v5M12 -2.5v5" stroke="#cbd5e1" strokeWidth="0.3" />
+      <line x1="-6" y1="0" x2="-3.5" y2="0" stroke="#cbd5e1" strokeWidth="0.6" />
+      <line x1="3.5" y1="0" x2="6" y2="0" stroke="#cbd5e1" strokeWidth="0.6" />
+      <rect x="-3.5" y="-3" width="7" height="6.5" rx="0.6" fill="url(#foil)" />
+      <line x1="0" y1="-3" x2="0" y2="-5" stroke="#cbd5e1" strokeWidth="0.6" />
+      <path d="M-4.5 -5.2 Q0 -9.6 4.5 -5.2 Z" fill="#f4f6fa" stroke="#9aa4b2" strokeWidth="0.3" />
     </svg>
   );
 }
 
 const ROCKS = [
-  { phase: 0.4, speed: 0.16, size: 15, points: '0,-7 6,-4 8,2 3,7 -4,6 -8,1 -6,-5' },
-  { phase: 2.5, speed: 0.12, size: 11, points: '0,-8 5,-6 7,1 4,6 -3,7 -7,2 -5,-5' },
-  { phase: 4.3, speed: 0.2, size: 9, points: '-1,-7 6,-5 7,3 1,7 -6,5 -7,-2' },
+  { y: -0.42, speed: 0.018, phase: 0.1, size: 13, points: '0,-7 6,-4 8,2 3,7 -4,6 -8,1 -6,-5' },
+  { y: 0.36, speed: 0.012, phase: 0.62, size: 10, points: '-1,-7 6,-5 7,3 1,7 -6,5 -7,-2' },
 ];
 
-// Rocks and a robot circling the globe in the 2D view. They pass behind the
-// planet on the far side of the orbit and in front of it on the near side.
-function Orbiters({ paused, belt, onPick, rx }) {
-  const refs = useRef([]);
+// The robots of this world in the 2D view: orbiters circle the globe,
+// flybys cross the scene, and rocks drift far behind (belt worlds only).
+function SpaceObjects({ robots, paused, belt, labels, rocks, onPick, rx }) {
+  const refs = useRef({});
+  const flying = useMemo(() => robots.filter((r) => r.place === 'orbit' || r.place === 'flyby'), [robots]);
+
   useEffect(() => {
     let frame = 0;
     let last = performance.now();
     let t = 0;
-    const items = [...ROCKS.map((r) => ({ ...r, kind: 'asteroid' })), { phase: 1.2, speed: 0.1, size: 26, kind: 'craft' }];
     const place = () => {
-      items.forEach((it, i) => {
-        const el = refs.current[i];
+      let oi = 0;
+      let fi = 0;
+      flying.forEach((r) => {
+        const el = refs.current[r.id];
         if (!el) return;
-        const a = it.phase + t * it.speed * Math.PI;
-        const x = Math.cos(a) * rx;
-        const y = Math.sin(a) * rx * 0.23;
-        const front = Math.sin(a) > 0;
-        const depth = 0.75 + (Math.sin(a) + 1) * 0.18;
-        el.style.transform = `translate(-50%, -50%) translate(${x.toFixed(2)}cqw, ${y.toFixed(2)}cqw) scale(${depth.toFixed(3)})`;
-        el.style.zIndex = front ? 3 : 0;
-        el.style.opacity = front ? 1 : 0.7;
-        el.style.setProperty('--spin', `${(t * 40 * (i + 1)) % 360}deg`);
+        if (r.place === 'orbit') {
+          const a = rx + oi * 14;
+          const ang = oi * 2.3 + t * (0.18 / (1 + oi * 0.4));
+          const x = Math.cos(ang) * a;
+          const y = Math.sin(ang) * a * (0.22 + oi * 0.05);
+          const front = Math.sin(ang) > 0;
+          const depth = 0.8 + (Math.sin(ang) + 1) * 0.15;
+          el.style.transform = `translate(-50%, -50%) translate(${x.toFixed(2)}cqw, ${y.toFixed(2)}cqw) scale(${depth.toFixed(3)})`;
+          el.style.zIndex = front ? 6 : 0;
+          oi += 1;
+        } else {
+          // A flyby crosses once every 26 seconds, then is gone for a while.
+          const u = ((t / 26 + fi * 0.37) % 1) * 2 - 1;
+          const x = u * 170;
+          const y = 52 + (fi % 3) * 13 - u * 8;
+          el.style.transform = `translate(-50%, -50%) translate(${x.toFixed(2)}cqw, ${y.toFixed(2)}cqw)`;
+          el.style.opacity = Math.abs(u) > 0.92 ? 0 : 1;
+          el.style.zIndex = 6;
+          fi += 1;
+        }
+      });
+      ROCKS.forEach((k, i) => {
+        const el = refs.current[`rock${i}`];
+        if (!el) return;
+        const x = (((k.phase + t * k.speed) % 1) * 2 - 1) * 160;
+        el.style.transform = `translate(-50%, -50%) translate(${x.toFixed(2)}cqw, ${(k.y * 100).toFixed(1)}cqw)`;
+        el.style.setProperty('--spin', `${(t * 25 * (i + 1)) % 360}deg`);
       });
     };
     const tick = (now) => {
@@ -69,62 +120,132 @@ function Orbiters({ paused, belt, onPick, rx }) {
     place();
     if (!paused) frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [paused, rx]);
+  }, [paused, rx, flying]);
 
   return (
     <>
-      {ROCKS.map((r, i) =>
-        belt ? (
+      {rocks &&
+        belt &&
+        ROCKS.map((k, i) => (
           <button
             key={i}
             type="button"
             className="orbiter orbiter--rock"
             ref={(el) => {
-              refs.current[i] = el;
+              refs.current[`rock${i}`] = el;
             }}
             aria-label="Asteroid: learn the word"
             onClick={() => onPick('asteroid')}
           >
-            <svg viewBox="-9 -9 18 18" width={r.size} height={r.size} aria-hidden="true">
+            <svg viewBox="-9 -9 18 18" width={k.size} height={k.size} aria-hidden="true">
               <defs>
                 <linearGradient id={`rock${i}`} x1="0" y1="0" x2="1" y2="1">
                   <stop offset="0" stopColor="#b9b4ad" />
-                  <stop offset="1" stopColor="#3a3a40" />
+                  <stop offset="1" stopColor="#2f2f35" />
                 </linearGradient>
               </defs>
-              <polygon points={r.points} fill={`url(#rock${i})`} />
+              <polygon points={k.points} fill={`url(#rock${i})`} />
             </svg>
           </button>
-        ) : null
-      )}
-      <button
-        type="button"
-        className="orbiter orbiter--craft"
-        ref={(el) => {
-          refs.current[ROCKS.length] = el;
-        }}
-        aria-label="Robot spacecraft: learn about it"
-        onClick={() => onPick('craft')}
-      >
-        <svg viewBox="-14 -8 28 16" width="28" height="16" aria-hidden="true">
-          <rect x="-13" y="-3" width="8" height="6" fill="#1b3f8f" stroke="#60a5fa" strokeWidth="0.6" />
-          <rect x="5" y="-3" width="8" height="6" fill="#1b3f8f" stroke="#60a5fa" strokeWidth="0.6" />
-          <rect x="-4" y="-4" width="8" height="8" rx="1" fill="#d9dde6" />
-          <path d="M-3 -4 a3 2 0 0 1 6 0" fill="#ffffff" />
-          <line x1="-5" y1="0" x2="5" y2="0" stroke="#9aa6bb" strokeWidth="0.6" />
-        </svg>
-      </button>
+        ))}
+      {flying.map((r) => (
+        <button
+          key={r.id}
+          type="button"
+          className={`orbiter orbiter--craft orbiter--${r.place}`}
+          ref={(el) => {
+            refs.current[r.id] = el;
+          }}
+          aria-label={`${r.name}: learn about this robot`}
+          onClick={() => onPick('robot', r.id)}
+        >
+          <CraftIcon />
+          {labels && <span className="craft-label">{r.name}</span>}
+        </button>
+      ))}
     </>
   );
 }
 
+// Landing-site beacons that turn with the planet. The 2D globe scrolls a
+// flat map, so a site's place on the disc follows the same scroll exactly.
+const DAY = 90; // seconds for one turn of the 2D globe
+
+function Beacons({ robots, paused, surfaceRef, labels }) {
+  const refs = useRef({});
+  useEffect(() => {
+    const surface = surfaceRef.current;
+    if (!surface) return undefined;
+    let frame = 0;
+    let last = performance.now();
+    let t = 0;
+    const place = () => {
+      const w = surface.clientWidth;
+      const offset = ((t / DAY) % 1) * 2 * w;
+      surface.style.backgroundPosition = `${offset.toFixed(1)}px 50%`;
+      robots.forEach((r) => {
+        const el = refs.current[r.id];
+        if (!el) return;
+        const [lat, lon] = r.site;
+        const u = (lon + 180) / 360;
+        let x = (offset + u * 2 * w) % (2 * w);
+        if (x > 1.5 * w) x -= 2 * w;
+        const visible = x > 0.06 * w && x < 0.94 * w;
+        const y = ((90 - lat) / 180) * w;
+        el.style.left = `${x.toFixed(1)}px`;
+        el.style.top = `${y.toFixed(1)}px`;
+        el.style.opacity = visible ? 1 - Math.abs(x / w - 0.5) * 1.2 : 0;
+        el.style.visibility = visible ? 'visible' : 'hidden';
+      });
+    };
+    const tick = (now) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      t += dt;
+      place();
+      frame = requestAnimationFrame(tick);
+    };
+    place();
+    if (!paused) frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [paused, robots, surfaceRef]);
+
+  return robots.map((r) => (
+    <span
+      key={r.id}
+      className="beacon"
+      data-robot={r.id}
+      ref={(el) => {
+        refs.current[r.id] = el;
+      }}
+      title={r.name}
+    >
+      {labels && <span className="beacon-label">{r.name}</span>}
+    </span>
+  ));
+}
+
 export default function Planet({ body, label, active, mode, paused, now, overlay, picked, onPick, on3dError }) {
   const hostRef = useRef(null);
+  const surfaceRef = useRef(null);
   const [view3d, setView3d] = useState('off'); // off | loading | ready
   const want3d = mode === '3d' && active;
   const url = textureUrl(body);
   const overlayRef = useRef(overlay);
   overlayRef.current = overlay;
+
+  const robots = useMemo(
+    () =>
+      robotsFor(body.id).map((r) => ({
+        id: r.id,
+        name: shortName(r),
+        place: placement(r, body.id),
+        site: SITES[r.id],
+        au: r.horizons ? distanceNow(r.horizons, Date.now()).au : null,
+      })),
+    [body.id]
+  );
+  const surfaceRobots = useMemo(() => robots.filter((r) => r.place === 'surface'), [robots]);
 
   useEffect(() => {
     if (!want3d) {
@@ -135,7 +256,7 @@ export default function Planet({ body, label, active, mode, paused, now, overlay
     let controller;
     setView3d('loading');
     import('../three/planetView.js')
-      .then((m) => m.mountPlanet(hostRef.current, body, url, { overlay: overlayRef.current, isCancelled: () => cancelled }))
+      .then((m) => m.mountPlanet(hostRef.current, body, url, { overlay: overlayRef.current, robots, isCancelled: () => cancelled }))
       .then((c) => {
         if (cancelled) {
           c.dispose();
@@ -186,24 +307,32 @@ export default function Planet({ body, label, active, mode, paused, now, overlay
     const c = host && host.__planet3d;
     if (c && view3d === 'ready') {
       // Keyboard presses have no position: treat them as the planet.
-      const kind = e.clientX || e.clientY ? c.pick(e.clientX, e.clientY) : 'planet';
-      if (kind === 'asteroid' || kind === 'craft' || kind === 'planet') onPick(kind);
+      const hit = e.clientX || e.clientY ? c.pick(e.clientX, e.clientY) : { kind: 'planet' };
+      if (hit) onPick(hit.kind, hit.id);
+      return;
+    }
+    const beacon = e.target.closest && e.target.closest('[data-robot]');
+    if (beacon) {
+      onPick('robot', beacon.dataset.robot);
       return;
     }
     onPick('planet');
   };
 
-  const tiltDeg = Math.min(body.tilt, 0.5) * (180 / Math.PI);
+  // Uranus is shown on its side; other worlds keep a gentle tilt in 2D.
+  const tiltDeg = (body.id === 'uranus' ? body.tilt : Math.min(body.tilt, 0.5)) * (180 / Math.PI);
   const classes = ['planet', `planet--${body.id}`];
   if (view3d === 'ready') classes.push('is-3d');
   if (body.deep) classes.push('planet--deep');
   if (overlay.atmosphere) classes.push('has-atmo');
   if (picked === 'planet' && view3d !== 'ready') classes.push('is-picked');
-  const show2dExtras = active && view3d !== 'ready';
+  const show2dExtras = active && view3d !== 'ready' && !body.deep;
+  const beaconsOn = show2dExtras && surfaceRobots.length > 0;
+  if (beaconsOn) classes.push('js-spin');
+  const thinRings = body.id === 'uranus';
 
   return (
-    <div className={`planet-wrap planet-wrap--${body.id}`} style={{ '--atmo': body.atmo || '#9fb4d8', '--orbit-w': body.rings ? '266%' : '177%' }}>
-      {overlay.orbits && show2dExtras && <OrbitPath part="back" />}
+    <div className={`planet-wrap planet-wrap--${body.id}`} style={{ '--atmo': body.atmo || '#9fb4d8' }}>
       <button
         ref={hostRef}
         type="button"
@@ -212,26 +341,38 @@ export default function Planet({ body, label, active, mode, paused, now, overlay
         aria-label={label}
         onClick={handleClick}
       >
-        {body.rings && <Rings part="back" />}
+        {(body.rings || thinRings) && <Rings part="back" thin={thinRings} />}
         {body.deep ? (
           <DeepSpaceMap now={now} />
         ) : (
           <span className="globe">
             <span
+              ref={surfaceRef}
               className="globe-surface"
               style={{ backgroundImage: url ? `url("${url}")` : 'none', backgroundColor: body.color }}
-            />
+            >
+              {beaconsOn && <Beacons robots={surfaceRobots} paused={paused} surfaceRef={surfaceRef} labels={overlay.labels} />}
+            </span>
           </span>
         )}
-        {body.rings && <Rings part="front" />}
+        {(body.rings || thinRings) && <Rings part="front" thin={thinRings} />}
         {view3d === 'loading' && (
           <span className="planet-note" role="status">
             Loading 3D view
           </span>
         )}
       </button>
-      {overlay.orbits && show2dExtras && <OrbitPath part="front" />}
-      {show2dExtras && <Orbiters paused={paused} belt={overlay.belt} onPick={onPick} rx={body.rings ? 128 : 85} />}
+      {show2dExtras && (
+        <SpaceObjects
+          robots={robots}
+          paused={paused}
+          belt={overlay.belt}
+          labels={overlay.labels}
+          rocks={['mars', 'jupiter'].includes(body.id)}
+          onPick={onPick}
+          rx={body.rings ? 128 : 78}
+        />
+      )}
       {overlay.labels && (
         <span className="planet-label" aria-hidden="true">
           {body.name}

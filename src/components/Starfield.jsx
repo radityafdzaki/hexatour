@@ -21,11 +21,10 @@ function makeNebula(w, h) {
   const ctx = c.getContext('2d');
   const rnd = seeded(5);
   const blobs = [
-    [0.2, 0.25, 0.55, 'rgba(11, 61, 145, 0.32)'],
-    [0.85, 0.15, 0.45, 'rgba(30, 144, 255, 0.10)'],
-    [0.7, 0.8, 0.6, 'rgba(60, 40, 140, 0.20)'],
-    [0.1, 0.9, 0.4, 'rgba(11, 61, 145, 0.18)'],
-    [0.5, 0.5, 0.35, 'rgba(96, 165, 250, 0.05)'],
+    // Faint, mostly neutral haze so the sky stays black.
+    [0.18, 0.22, 0.55, 'rgba(11, 61, 145, 0.10)'],
+    [0.82, 0.78, 0.6, 'rgba(70, 80, 110, 0.08)'],
+    [0.9, 0.1, 0.35, 'rgba(37, 99, 235, 0.04)'],
   ];
   blobs.forEach(([x, y, r, col]) => {
     const g = ctx.createRadialGradient(x * c.width, y * c.height, 0, x * c.width, y * c.height, r * Math.max(c.width, c.height));
@@ -36,7 +35,7 @@ function makeNebula(w, h) {
   });
   // Faint dust grain so the haze is not a smooth gradient.
   for (let i = 0; i < 1600; i += 1) {
-    ctx.fillStyle = `rgba(160, 190, 255, ${rnd() * 0.05})`;
+    ctx.fillStyle = `rgba(200, 210, 225, ${rnd() * 0.03})`;
     ctx.fillRect(rnd() * c.width, rnd() * c.height, 1, 1);
   }
   return c;
@@ -81,10 +80,10 @@ export default function Starfield({ paused, belt, dense }) {
         y: rnd() * 2 - 1,
         z: rnd(),
         layer,
-        size: layer === 1 ? 0.5 + rnd() * 0.5 : layer === 2 ? 0.8 + rnd() * 0.7 : 1.2 + rnd() * 1.1,
+        size: layer === 1 ? 0.4 + rnd() * 0.4 : layer === 2 ? 0.6 + rnd() * 0.5 : 0.9 + rnd() * 0.7,
         color: STAR_COLORS[Math.floor(rnd() * STAR_COLORS.length)],
         tw: rnd() * Math.PI * 2,
-        twSpeed: 0.6 + rnd() * 2.2,
+        twSpeed: 0.25 + rnd() * 0.9,
       });
     }
 
@@ -100,7 +99,7 @@ export default function Starfield({ paused, belt, dense }) {
         spinSpeed: (rnd() - 0.5) * 1.6,
         shape: makeRock(rnd),
         shade: 90 + Math.floor(rnd() * 60),
-        dense: rnd() < 0.55,
+        dense: rnd() < 0.8,
       });
     }
 
@@ -124,7 +123,7 @@ export default function Starfield({ paused, belt, dense }) {
 
     function draw() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = '#050811';
+      ctx.fillStyle = '#030508';
       ctx.fillRect(0, 0, w, h);
 
       const scroll = (window.scrollY || 0) + (document.querySelector('.track')?.scrollLeft || 0) * 0.5;
@@ -147,9 +146,11 @@ export default function Starfield({ paused, belt, dense }) {
         x = ((x % w) + w) % w;
         y = ((y % h) + h) % h;
         const near = 1 - s.z;
-        const twinkle = 0.6 + 0.4 * Math.sin(t * s.twSpeed + s.tw);
+        // A gentle shimmer, and dimmer stars behind the text in the middle.
+        const twinkle = 0.84 + 0.16 * Math.sin(t * s.twSpeed + s.tw);
+        const calm = Math.abs(x - cx) < w * 0.22 ? 0.6 : 1;
         const r = s.size * (0.55 + near * 0.9);
-        ctx.globalAlpha = Math.min(1, (0.25 + near * 0.75) * twinkle);
+        ctx.globalAlpha = Math.min(1, (0.2 + near * 0.6) * twinkle * calm);
         ctx.fillStyle = s.color;
         if (r < 1.1) {
           ctx.fillRect(x, y, r * 1.4, r * 1.4);
@@ -157,11 +158,6 @@ export default function Starfield({ paused, belt, dense }) {
           ctx.beginPath();
           ctx.arc(x, y, r, 0, Math.PI * 2);
           ctx.fill();
-          if (s.layer === 3 && twinkle > 0.85) {
-            ctx.globalAlpha *= 0.35;
-            ctx.fillRect(x - r * 3, y - 0.4, r * 6, 0.8);
-            ctx.fillRect(x - 0.4, y - r * 3, 0.8, r * 6);
-          }
         }
       }
 
@@ -207,7 +203,8 @@ export default function Starfield({ paused, belt, dense }) {
       if (!p) {
         t += dt;
         for (const s of stars) {
-          s.z -= dt * 0.012 * s.layer;
+          // Ultra slow drift: about 85% slower than before.
+          s.z -= dt * 0.0018 * s.layer;
           if (s.z <= 0) {
             s.z = 1;
             s.x = Math.random() * 2 - 1;
@@ -215,7 +212,7 @@ export default function Starfield({ paused, belt, dense }) {
           }
         }
         for (const k of rocks) {
-          k.a += dt * k.speed;
+          k.a += dt * k.speed * 0.3;
           k.spin += dt * k.spinSpeed;
         }
       }

@@ -14,6 +14,13 @@ npm run dev
 
 Build a static copy for hosting with `npm run build`. The result is in `dist/`.
 
+## Live site
+
+https://radityafdzaki.github.io/hexatour/
+
+To publish a new version, run `npm run deploy`. It builds the site and pushes `dist/` to the
+`gh-pages` branch, which GitHub Pages serves.
+
 ## NASA data and resources used
 
 | What | Source |

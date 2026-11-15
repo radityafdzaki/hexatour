@@ -199,22 +199,127 @@ export const ROBOT_TEXT = {
   },
 };
 
-// Spoken guide. Returns false when the browser cannot speak.
-export function speak(text, rate = 0.92) {
+export const canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window;
+
+// Spoken guide. Phone browsers are fussy about speech, so this:
+//  - speaks inside the tap itself (iOS needs that) and only cancels when
+//    something is already playing (cancel right before speak() can swallow
+//    the speech on Android),
+//  - cuts the text into sentences (long utterances stop early on Android),
+//  - keeps a reference to every utterance (they can be garbage collected
+//    mid-speech), and
+//  - reports back, so the button can say when a phone has no voice installed.
+let live = [];
+let session = 0;
+
+if (canSpeak) {
+  // Voices load late on Chrome. Asking once warms the list up.
   try {
-    const synth = window.speechSynthesis;
-    if (!synth) return false;
-    synth.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'en-US';
-    u.rate = rate;
-    const voice = synth.getVoices().find((v) => v.lang && v.lang.startsWith('en'));
-    if (voice) u.voice = voice;
-    synth.speak(u);
-    return true;
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.addEventListener?.('voiceschanged', () => window.speechSynthesis.getVoices());
   } catch {
-    return false;
+    /* no speech on this device */
   }
 }
 
-export const canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window;
+export function stopSpeaking() {
+  session += 1;
+  live = [];
+  try {
+    window.speechSynthesis.cancel();
+  } catch {
+    /* nothing to stop */
+  }
+}
+
+function sentenceChunks(text, max = 170) {
+  const parts = text.match(/[^.!?]+[.!?]*\s*/g) || [text];
+  const out = [];
+  let cur = '';
+  for (const p of parts) {
+    if (cur && (cur + p).length > max) {
+      out.push(cur.trim());
+      cur = p;
+    } else {
+      cur += p;
+    }
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+
+function pickVoice(synth) {
+  const voices = synth.getVoices() || [];
+  return voices.find((v) => v.lang === 'en-US') || voices.find((v) => /^en[-_]/i.test(v.lang)) || null;
+}
+
+// callbacks: onStart(), onEnd(), onError('no-voice' | 'error')
+export function speak(text, { rate = 0.92, onStart, onEnd, onError } = {}) {
+  let synth;
+  try {
+    synth = window.speechSynthesis;
+  } catch {
+    synth = null;
+  }
+  if (!synth) {
+    if (onError) onError('unsupported');
+    return false;
+  }
+  const busy = synth.speaking || synth.pending;
+  if (busy) stopSpeaking();
+  else session += 1;
+  const mine = session;
+  const parts = sentenceChunks(text);
+  let started = false;
+
+  const run = () => {
+    if (mine !== session) return;
+    try {
+      synth.resume();
+    } catch {
+      /* not paused */
+    }
+    const voice = pickVoice(synth);
+    parts.forEach((part, i) => {
+      const u = new SpeechSynthesisUtterance(part);
+      u.lang = voice ? voice.lang : 'en-US';
+      if (voice) {
+        try {
+          u.voice = voice;
+        } catch {
+          /* keep the default voice */
+        }
+      }
+      u.rate = rate;
+      u.onstart = () => {
+        if (mine !== session || started) return;
+        started = true;
+        if (onStart) onStart();
+      };
+      u.onend = () => {
+        if (mine === session && i === parts.length - 1 && onEnd) onEnd();
+      };
+      u.onerror = (e) => {
+        if (mine !== session) return;
+        if (e && (e.error === 'interrupted' || e.error === 'canceled')) return;
+        if (onError) onError('error');
+      };
+      live.push(u);
+      try {
+        synth.speak(u);
+      } catch {
+        if (onError) onError('error');
+      }
+    });
+  };
+
+  // Android needs a breath between cancel() and speak(); otherwise go at once.
+  if (busy) setTimeout(run, 120);
+  else run();
+
+  // Nothing began: usually a phone with no text-to-speech voice installed.
+  setTimeout(() => {
+    if (mine === session && !started && onError) onError('no-voice');
+  }, 4000);
+  return true;
+}

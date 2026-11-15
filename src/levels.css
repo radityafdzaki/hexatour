@@ -105,8 +105,21 @@
 }
 
 /* The slide already has the big Listen button on desktop. */
-.briefing-inline .listen-btn {
+.briefing-inline .listen-btn,
+.briefing-inline .listen-note {
   display: none;
+}
+
+.listen-note {
+  max-width: 34ch;
+  margin: 10px auto 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text-2, #cbd5e1);
+}
+
+.briefing .listen-note {
+  margin-left: 0;
 }
 
 .briefing-sub {

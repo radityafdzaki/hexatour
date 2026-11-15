@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { canSpeak, lookup, speak } from '../data/learn.js';
+import { canSpeak, lookup, speak, stopSpeaking } from '../data/learn.js';
 import { BODY_LEARN, ROBOT_SPEC, parseMarked, plainText } from '../data/lessons.js';
 import { StatusTag } from './Status.jsx';
 import { distanceNow } from '../data/robots.js';
@@ -11,27 +11,43 @@ import { SpeakerIcon } from './Icons.jsx';
 
 export function ListenButton({ text, label = 'Audio Briefing' }) {
   const [on, setOn] = useState(false);
+  const [note, setNote] = useState('');
+  useEffect(() => () => stopSpeaking(), []);
   if (!canSpeak) return null;
   const play = () => {
     if (on) {
-      window.speechSynthesis.cancel();
+      stopSpeaking();
       setOn(false);
       return;
     }
-    speak(text, 0.85);
+    setNote('');
     setOn(true);
-    const check = setInterval(() => {
-      if (!window.speechSynthesis.speaking) {
+    speak(text, {
+      rate: 0.85,
+      onStart: () => setNote(''),
+      onEnd: () => setOn(false),
+      onError: (why) => {
         setOn(false);
-        clearInterval(check);
-      }
-    }, 300);
+        setNote(
+          why === 'no-voice'
+            ? 'No sound? This phone may have no voice installed. Check Text-to-speech in your phone settings, and turn the media volume up.'
+            : 'The voice stopped. Tap again to retry.',
+        );
+      },
+    });
   };
   return (
-    <button type="button" className={on ? 'listen-btn is-on' : 'listen-btn'} onClick={play}>
-      <SpeakerIcon />
-      {on ? 'Stop' : label}
-    </button>
+    <>
+      <button type="button" className={on ? 'listen-btn is-on' : 'listen-btn'} onClick={play}>
+        <SpeakerIcon />
+        {on ? 'Stop' : label}
+      </button>
+      {note && (
+        <p className="listen-note" role="status">
+          {note}
+        </p>
+      )}
+    </>
   );
 }
 
